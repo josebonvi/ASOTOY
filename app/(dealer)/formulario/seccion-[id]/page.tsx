@@ -1,0 +1,123 @@
+import { redirect, notFound } from "next/navigation";
+import { createClient } from "@/lib/supabase/server";
+import { FORMULARIO_SECCIONES } from "@/lib/constants";
+import type { FormularioProgreso } from "@/lib/types";
+import SeccionDatos from "@/components/forms/SeccionDatos";
+import SeccionCargos from "@/components/forms/SeccionCargos";
+import SeccionRemuneracion from "@/components/forms/SeccionRemuneracion";
+import SeccionTalento from "@/components/forms/SeccionTalento";
+import SeccionNecesidades from "@/components/forms/SeccionNecesidades";
+
+export default async function FormularioSeccionPage({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
+  const { id } = await params;
+  const seccionId = parseInt(id);
+
+  if (isNaN(seccionId) || seccionId < 1 || seccionId > 5) notFound();
+
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) redirect("/login");
+
+  const { data: concesionario } = await supabase
+    .from("concesionarios")
+    .select("*")
+    .eq("user_id", user.id)
+    .single();
+
+  if (!concesionario) redirect("/login");
+
+  // Check if formulario is already completed (read-only)
+  const isCompleted = concesionario.formulario_estado === "completado";
+
+  const progreso =
+    (concesionario.formulario_progreso as FormularioProgreso) ?? {
+      seccion1: false,
+      seccion2: false,
+      seccion3: false,
+      seccion4: false,
+      seccion5: false,
+    };
+
+  // Check if section is blocked (sections 3 & 4 require section 2)
+  const seccionConfig = FORMULARIO_SECCIONES.find((s) => s.id === seccionId) as
+    | (typeof FORMULARIO_SECCIONES)[number] & { requiere?: keyof FormularioProgreso }
+    | undefined;
+  if (seccionConfig?.requiere && !progreso[seccionConfig.requiere]) {
+    redirect("/inicio");
+  }
+
+  // Fetch section-specific data
+  const { data: areas } = await supabase
+    .from("areas")
+    .select("*")
+    .eq("concesionario_id", concesionario.id);
+
+  const { data: cargos } = await supabase
+    .from("cargos")
+    .select("*")
+    .eq("concesionario_id", concesionario.id);
+
+  const sectionComponents: Record<number, React.ReactNode> = {
+    1: (
+      <SeccionDatos
+        concesionario={concesionario}
+        areas={areas ?? []}
+        readOnly={isCompleted}
+      />
+    ),
+    2: (
+      <SeccionCargos
+        concesionarioId={concesionario.id}
+        cargos={cargos ?? []}
+        areas={areas ?? []}
+        readOnly={isCompleted}
+      />
+    ),
+    3: (
+      <SeccionRemuneracion
+        concesionarioId={concesionario.id}
+        cargos={cargos ?? []}
+        readOnly={isCompleted}
+      />
+    ),
+    4: (
+      <SeccionTalento
+        concesionarioId={concesionario.id}
+        cargos={cargos ?? []}
+        readOnly={isCompleted}
+      />
+    ),
+    5: (
+      <SeccionNecesidades
+        concesionarioId={concesionario.id}
+        readOnly={isCompleted}
+      />
+    ),
+  };
+
+  const seccion = FORMULARIO_SECCIONES.find((s) => s.id === seccionId);
+
+  return (
+    <div className="max-w-4xl">
+      <div className="mb-6">
+        <p className="text-xs font-semibold uppercase tracking-wider text-primary mb-1">
+          Sección {seccionId} de 5
+        </p>
+        <h1 className="text-2xl font-bold">{seccion?.titulo}</h1>
+        {isCompleted && (
+          <p className="text-sm text-warning mt-2">
+            El formulario ya fue enviado. Los datos son de solo lectura.
+          </p>
+        )}
+      </div>
+      {sectionComponents[seccionId]}
+    </div>
+  );
+}

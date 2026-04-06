@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import { TooltipProvider } from "@/components/ui/tooltip";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -14,7 +15,8 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "ASOTOY — Estudio de Remuneración",
-  description: "Portal de remuneración de la red de concesionarios Toyota Venezuela",
+  description:
+    "Portal de remuneración de la red de concesionarios Toyota Venezuela",
 };
 
 export default function RootLayout({
@@ -25,9 +27,11 @@ export default function RootLayout({
   return (
     <html
       lang="es"
-      className={`${geistSans.variable} ${geistMono.variable} h-full`}
+      className={`${geistSans.variable} ${geistMono.variable} dark`}
     >
-      <body className="h-full antialiased">{children}</body>
+      <body className="h-full antialiased">
+        <TooltipProvider>{children}</TooltipProvider>
+      </body>
     </html>
   );
 }
