@@ -89,7 +89,7 @@ export default function DealerSidebar({
         {FORMULARIO_SECCIONES.map((seccion) => {
           const Icon = iconMap[seccion.icono] || Target;
           const isCompleted = progreso[seccion.key];
-          const isActive = pathname === `/formulario/seccion-${seccion.id}`;
+          const isActive = pathname === `/formulario/${seccion.id}`;
           const isBlocked =
             seccion.requiere && !progreso[seccion.requiere];
 
@@ -99,7 +99,7 @@ export default function DealerSidebar({
               href={
                 isBlocked
                   ? "#"
-                  : `/formulario/seccion-${seccion.id}`
+                  : `/formulario/${seccion.id}`
               }
               className={cn(
                 "flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors",

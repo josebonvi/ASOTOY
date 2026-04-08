@@ -45,11 +45,14 @@ export interface Area {
 }
 
 export type NivelToyota =
-  | "mecanico_base"
-  | "mecanico_especializado"
-  | "mecanico_master"
+  | "tecnico_g1"
+  | "tecnico_g2"
+  | "tecnico_g3"
+  | "tecnico_g4"
   | "asesor_servicio"
   | "asesor_tecnico"
+  | "jefe_taller"
+  | "analista_garantia"
   | "no_aplica";
 
 export interface Cargo {

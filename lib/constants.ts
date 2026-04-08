@@ -1,10 +1,13 @@
 export const NIVELES_TOYOTA = [
-  { value: "mecanico_base", label: "Mecánico Base" },
-  { value: "mecanico_especializado", label: "Mecánico Especializado" },
-  { value: "mecanico_master", label: "Mecánico Master" },
+  { value: "tecnico_g1", label: "Técnico G1" },
+  { value: "tecnico_g2", label: "Técnico G2" },
+  { value: "tecnico_g3", label: "Técnico G3" },
+  { value: "tecnico_g4", label: "Técnico G4" },
   { value: "asesor_servicio", label: "Asesor de Servicio" },
   { value: "asesor_tecnico", label: "Asesor Técnico" },
-  { value: "no_aplica", label: "No aplica (Toyota no define este cargo)" },
+  { value: "jefe_taller", label: "Jefe de Taller" },
+  { value: "analista_garantia", label: "Analista de Garantía" },
+  { value: "no_aplica", label: "No aplica (cargo no definido por Toyota)" },
 ] as const;
 
 export const ESTADOS_VENEZUELA = [
@@ -107,11 +110,14 @@ export const FORMULARIO_SECCIONES = [
 ] as const;
 
 export const CONCESIONARIOS_PILOTO = [
-  { nombre: "Mariperez", zona: "Central", estado: "Distrito Capital" },
-  { nombre: "Toyomotor", zona: "Central", estado: "Miranda" },
-  {
-    nombre: "Concesionario Piloto 3",
-    zona: "Central",
-    estado: "Distrito Capital",
-  },
+  { nombre: "Mariperez Motors", zona: "Central", estado: "Distrito Capital" },
+  { nombre: "CARS", zona: "Central", estado: "Distrito Capital" },
+  { nombre: "Tomás Felipe", zona: "Central", estado: "Distrito Capital" },
 ] as const;
+
+/** Helper: obtener label legible de un valor de nivel_toyota */
+export function getNivelToyotaLabel(value: string | null): string {
+  if (!value) return "—";
+  const found = NIVELES_TOYOTA.find((n) => n.value === value);
+  return found?.label ?? value;
+}

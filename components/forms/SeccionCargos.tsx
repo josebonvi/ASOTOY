@@ -151,7 +151,7 @@ export default function SeccionCargos({
   async function handleContinue() {
     await saveToDb(formData);
     await markSectionComplete("seccion2");
-    router.push("/formulario/seccion-3");
+    router.push("/formulario/3");
     router.refresh();
   }
 

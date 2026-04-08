@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { getNivelToyotaLabel } from "@/lib/constants";
 
 export default async function ConcesionarioDetallePage({
   params,
@@ -107,7 +108,7 @@ export default async function ConcesionarioDetallePage({
                   <tr key={c.id} className="border-b border-border last:border-0">
                     <td className="py-2">{c.nombre_cargo}</td>
                     <td className="py-2 text-muted-foreground">{c.area ?? "—"}</td>
-                    <td className="py-2 text-muted-foreground">{c.nivel_toyota ?? "—"}</td>
+                    <td className="py-2 text-muted-foreground">{getNivelToyotaLabel(c.nivel_toyota)}</td>
                     <td className="py-2">{c.num_personas ?? "—"}</td>
                     <td className="py-2">{c.certificado_toyota ? "✓" : "—"}</td>
                   </tr>

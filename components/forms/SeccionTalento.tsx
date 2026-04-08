@@ -157,7 +157,7 @@ export default function SeccionTalento({
   async function handleContinue() {
     await saveToDb(formData);
     await markSectionComplete("seccion4");
-    router.push("/formulario/seccion-5");
+    router.push("/formulario/5");
     router.refresh();
   }
 

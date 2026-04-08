@@ -172,7 +172,7 @@ export default function SeccionRemuneracion({
   async function handleContinue() {
     await saveToDb(formData);
     await markSectionComplete("seccion3");
-    router.push("/formulario/seccion-4");
+    router.push("/formulario/4");
     router.refresh();
   }
 

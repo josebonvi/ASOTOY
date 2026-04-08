@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { createClient } from "@/lib/supabase/client";
+import { getNivelToyotaLabel } from "@/lib/constants";
 import { Button } from "@/components/ui/button";
 import { Download, FileText, Loader2 } from "lucide-react";
 
@@ -83,6 +84,7 @@ export default function ExportarPage() {
         rows = (data ?? []).map((r) => ({
           concesionario: concMap[r.concesionario_id] ?? r.concesionario_id,
           ...r,
+          nivel_toyota: getNivelToyotaLabel(r.nivel_toyota),
         })) as Record<string, unknown>[];
       } else if (type === "rangos") {
         const { data } = await supabase

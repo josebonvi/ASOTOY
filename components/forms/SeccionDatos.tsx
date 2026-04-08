@@ -128,7 +128,7 @@ export default function SeccionDatos({
   async function handleContinue() {
     await saveToDb(formData);
     await markSectionComplete("seccion1");
-    router.push("/formulario/seccion-2");
+    router.push("/formulario/2");
     router.refresh();
   }
 
