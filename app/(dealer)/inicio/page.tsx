@@ -53,7 +53,7 @@ export default async function DealerDashboard() {
   // Find next incomplete section
   const nextSection = FORMULARIO_SECCIONES.find((s) => !progreso[s.key]);
   const nextHref = nextSection
-    ? `/formulario/seccion-${nextSection.id}`
+    ? `/formulario/${nextSection.id}`
     : "/formulario/confirmacion";
 
   return (
@@ -135,10 +135,10 @@ export default async function DealerDashboard() {
                 key={seccion.id}
                 href={
                   isBlocked
-                    ? "#"
-                    : `/formulario/seccion-${seccion.id}`
+                    ? `/inicio`
+                    : `/formulario/${seccion.id}`
                 }
-                onClick={(e) => isBlocked && e.preventDefault()}
+                aria-disabled={isBlocked || undefined}
                 className={`flex items-center gap-4 p-4 rounded-lg border transition-colors ${
                   isCompleted
                     ? "border-success/30 bg-success/5"
