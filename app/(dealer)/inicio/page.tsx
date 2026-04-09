@@ -59,38 +59,54 @@ export default async function DealerDashboard() {
   return (
     <div className="max-w-4xl">
       {/* Welcome banner */}
-      <div className="rounded-xl bg-gradient-to-r from-primary to-primary/80 p-6 mb-6">
-        <h1 className="text-2xl font-bold text-primary-foreground">
-          Bienvenido, {concesionario.nombre}
-        </h1>
-        <p className="text-primary-foreground/80 mt-1 text-sm">
-          Estudio de Remuneración — Red de Concesionarios Toyota Venezuela
-        </p>
-        <Link href={nextHref}>
-          <Button
-            variant="secondary"
-            className="mt-4 bg-white text-primary hover:bg-white/90 font-semibold"
-          >
-            {completedCount === 0
-              ? "Comenzar formulario"
-              : completedCount === 5
-                ? "Ver confirmación"
-                : "Continuar donde te quedaste"}
-            <ArrowRight size={16} className="ml-2" />
-          </Button>
-        </Link>
+      <div className="rounded-xl bg-gradient-to-br from-primary via-primary/90 to-primary/70 p-8 mb-6 relative overflow-hidden">
+        {/* Decorative circles */}
+        <div className="absolute -top-12 -right-12 w-40 h-40 rounded-full bg-white/5" />
+        <div className="absolute -bottom-8 -right-4 w-24 h-24 rounded-full bg-white/5" />
+        <div className="relative">
+          <p className="text-primary-foreground/60 text-xs font-medium uppercase tracking-wider mb-2">
+            Estudio de Remuneración — Red Toyota Venezuela
+          </p>
+          <h1 className="text-2xl font-bold text-primary-foreground">
+            Bienvenido, {concesionario.nombre}
+          </h1>
+          <p className="text-primary-foreground/70 mt-2 text-sm max-w-lg">
+            Complete el formulario para participar en el primer estudio
+            de estructura salarial y talento de la red de concesionarios
+            Toyota en Venezuela.
+          </p>
+          <Link href={nextHref}>
+            <Button
+              variant="secondary"
+              className="mt-5 bg-white text-primary hover:bg-white/90 font-semibold shadow-lg"
+            >
+              {completedCount === 0
+                ? "Comenzar formulario"
+                : completedCount === 5
+                  ? "Ver confirmación"
+                  : "Continuar donde te quedaste"}
+              <ArrowRight size={16} className="ml-2" />
+            </Button>
+          </Link>
+        </div>
       </div>
 
       {/* Stats */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
         <div className="rounded-xl p-5 bg-card border border-border">
-          <p className="text-xs font-medium text-muted-foreground mb-2">
-            Progreso
+          <p className="text-xs font-medium text-muted-foreground mb-3">
+            Progreso general
           </p>
-          <p className="text-3xl font-bold text-primary">{progressPercent}%</p>
+          <p className="text-3xl font-bold text-primary mb-2">{progressPercent}%</p>
+          <div className="h-1.5 bg-muted rounded-full overflow-hidden">
+            <div
+              className="h-full bg-primary rounded-full transition-all duration-700"
+              style={{ width: `${progressPercent}%` }}
+            />
+          </div>
         </div>
         <div className="rounded-xl p-5 bg-card border border-border">
-          <p className="text-xs font-medium text-muted-foreground mb-2">
+          <p className="text-xs font-medium text-muted-foreground mb-3">
             Secciones completadas
           </p>
           <p className="text-3xl font-bold text-foreground">
@@ -99,22 +115,45 @@ export default async function DealerDashboard() {
               / 5
             </span>
           </p>
+          <div className="flex gap-1.5 mt-2">
+            {[1, 2, 3, 4, 5].map((i) => (
+              <div
+                key={i}
+                className={`h-1.5 flex-1 rounded-full ${
+                  progreso[`seccion${i}` as keyof typeof progreso]
+                    ? "bg-success"
+                    : "bg-muted"
+                }`}
+              />
+            ))}
+          </div>
         </div>
         <div className="rounded-xl p-5 bg-card border border-border">
-          <p className="text-xs font-medium text-muted-foreground mb-2">
+          <p className="text-xs font-medium text-muted-foreground mb-3">
             Estado
           </p>
-          <p className="text-lg font-semibold capitalize">
-            {concesionario.formulario_estado === "pendiente" && (
-              <span className="text-warning">Pendiente</span>
-            )}
-            {concesionario.formulario_estado === "en_progreso" && (
-              <span className="text-warning">En progreso</span>
-            )}
-            {concesionario.formulario_estado === "completado" && (
-              <span className="text-success">Completado</span>
-            )}
-          </p>
+          <div className="flex items-center gap-2">
+            <span
+              className={`w-2.5 h-2.5 rounded-full ${
+                concesionario.formulario_estado === "completado"
+                  ? "bg-success"
+                  : concesionario.formulario_estado === "en_progreso"
+                    ? "bg-warning"
+                    : "bg-muted-foreground"
+              }`}
+            />
+            <p className="text-lg font-semibold capitalize">
+              {concesionario.formulario_estado === "pendiente" && (
+                <span className="text-warning">Pendiente</span>
+              )}
+              {concesionario.formulario_estado === "en_progreso" && (
+                <span className="text-warning">En progreso</span>
+              )}
+              {concesionario.formulario_estado === "completado" && (
+                <span className="text-success">Completado</span>
+              )}
+            </p>
+          </div>
         </div>
       </div>
 

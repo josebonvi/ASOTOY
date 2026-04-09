@@ -76,7 +76,7 @@ export default function LoginPage() {
             />
           </div>
           <p className="text-sm text-muted-foreground">
-            Estudio de Remuneración Toyota Venezuela
+            Portal de Remuneración — Red de Concesionarios Toyota Venezuela
           </p>
         </div>
 
@@ -130,7 +130,11 @@ export default function LoginPage() {
         </div>
 
         <p className="text-center text-xs mt-6 text-muted-foreground">
-          ¿Problemas para acceder? Contacta a ASOTOY
+          ¿Problemas para acceder? Escriba a{" "}
+          <span className="text-foreground">soporte@asotoy.com</span>
+        </p>
+        <p className="text-center text-[10px] mt-2 text-muted-foreground/50">
+          Asociación Nacional de Concesionarios Toyota de Venezuela
         </p>
       </div>
     </div>
