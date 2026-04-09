@@ -168,6 +168,7 @@ export default function SeccionDatos({
               value={estado}
               onChange={(e) => setEstado(e.target.value)}
               disabled={readOnly}
+              title="Estado"
               className="w-full bg-input border border-border rounded-md px-3 py-2 text-sm text-foreground"
             >
               <option value="">Seleccionar estado...</option>

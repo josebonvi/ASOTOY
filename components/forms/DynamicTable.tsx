@@ -96,6 +96,8 @@ export function DynamicTable({
                           onChange={(e) =>
                             updateRow(index, col.key, e.target.value)
                           }
+                          title={col.label}
+                          aria-label={col.label}
                           className="w-full bg-input border border-border rounded-md px-2 py-1.5 text-sm text-foreground"
                         >
                           <option value="">Seleccionar...</option>
@@ -112,6 +114,8 @@ export function DynamicTable({
                           onChange={(e) =>
                             updateRow(index, col.key, e.target.checked)
                           }
+                          title={col.label}
+                          aria-label={col.label}
                           className="h-4 w-4 rounded border-border accent-primary"
                         />
                       ) : (
@@ -145,6 +149,8 @@ export function DynamicTable({
                         onClick={() => removeRow(index)}
                         className="p-1.5 rounded text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors"
                         type="button"
+                        title="Eliminar fila"
+                        aria-label="Eliminar fila"
                       >
                         <Trash2 size={14} />
                       </button>
@@ -179,6 +185,8 @@ export function DynamicTable({
                     onClick={() => removeRow(index)}
                     className="p-1 rounded text-muted-foreground hover:text-destructive"
                     type="button"
+                    title="Eliminar fila"
+                    aria-label="Eliminar fila"
                   >
                     <Trash2 size={14} />
                   </button>

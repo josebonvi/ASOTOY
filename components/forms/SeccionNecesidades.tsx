@@ -167,6 +167,7 @@ export default function SeccionNecesidades({
             value={interesCollege}
             onChange={(e) => setInteresCollege(e.target.value)}
             disabled={readOnly}
+            title="Interés en ASOTOY College"
             className="w-full max-w-xs bg-input border border-border rounded-md px-3 py-2 text-sm text-foreground"
           >
             <option value="">Seleccionar...</option>

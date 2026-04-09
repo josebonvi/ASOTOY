@@ -217,6 +217,7 @@ export default function SeccionRemuneracion({
             value={monedaPrincipal}
             onChange={(e) => setMonedaPrincipal(e.target.value)}
             disabled={readOnly}
+            title="Moneda principal"
             className="w-full max-w-xs bg-input border border-border rounded-md px-3 py-2 text-sm text-foreground"
           >
             {MONEDAS.map((m) => (
@@ -292,6 +293,7 @@ export default function SeccionRemuneracion({
             value={frecuenciaRevision}
             onChange={(e) => setFrecuenciaRevision(e.target.value)}
             disabled={readOnly}
+            title="Frecuencia de revisión salarial"
             className="w-full max-w-xs bg-input border border-border rounded-md px-3 py-2 text-sm text-foreground"
           >
             <option value="">Seleccionar...</option>
