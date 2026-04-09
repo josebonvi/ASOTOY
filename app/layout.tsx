@@ -28,8 +28,9 @@ export default function RootLayout({
     <html
       lang="es"
       className={`${geistSans.variable} ${geistMono.variable} dark`}
+      suppressHydrationWarning
     >
-      <body className="h-full antialiased">
+      <body className="h-full antialiased" suppressHydrationWarning>
         <TooltipProvider>{children}</TooltipProvider>
       </body>
     </html>
