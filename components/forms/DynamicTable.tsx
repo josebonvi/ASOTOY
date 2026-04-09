@@ -205,6 +205,8 @@ export function DynamicTable({
                       onChange={(e) =>
                         updateRow(index, col.key, e.target.value)
                       }
+                      title={col.label}
+                      aria-label={col.label}
                       className="w-full bg-input border border-border rounded-md px-3 py-2 text-sm text-foreground"
                     >
                       <option value="">Seleccionar...</option>
@@ -221,6 +223,8 @@ export function DynamicTable({
                       onChange={(e) =>
                         updateRow(index, col.key, e.target.checked)
                       }
+                      title={col.label}
+                      aria-label={col.label}
                       className="h-5 w-5 rounded border-border accent-primary"
                     />
                   ) : (

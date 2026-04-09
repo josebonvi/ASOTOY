@@ -54,22 +54,22 @@ export default async function ConcesionarioDetallePage({
         <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground mb-4">
           Sección 1 — Datos del Concesionario
         </h2>
-        <dl className="grid grid-cols-2 gap-4 text-sm">
+        <div className="grid grid-cols-2 gap-4 text-sm">
           <div>
-            <dt className="text-muted-foreground">Empleados</dt>
-            <dd className="font-medium">{concesionario.num_empleados ?? "—"}</dd>
+            <p className="text-muted-foreground text-xs">Empleados</p>
+            <p className="font-medium">{concesionario.num_empleados ?? "—"}</p>
           </div>
           <div>
-            <dt className="text-muted-foreground">Organigrama</dt>
-            <dd className="font-medium">
+            <p className="text-muted-foreground text-xs">Organigrama</p>
+            <p className="font-medium">
               {concesionario.tiene_organigrama ? "Sí" : "No"}
-            </dd>
+            </p>
           </div>
           <div className="col-span-2">
-            <dt className="text-muted-foreground">Cadena de mando</dt>
-            <dd className="font-medium">{concesionario.cadena_mando ?? "—"}</dd>
+            <p className="text-muted-foreground text-xs">Cadena de mando</p>
+            <p className="font-medium">{concesionario.cadena_mando ?? "—"}</p>
           </div>
-        </dl>
+        </div>
         {areas && areas.length > 0 && (
           <div className="mt-4">
             <p className="text-xs font-semibold text-muted-foreground mb-2">
@@ -183,32 +183,32 @@ export default async function ConcesionarioDetallePage({
           Sección 5 — Necesidades y Brechas
         </h2>
         {necesidades && necesidades.length > 0 ? (
-          <dl className="space-y-3 text-sm">
+          <div className="space-y-3 text-sm">
             {necesidades.map((n) => (
               <div key={n.id} className="space-y-3">
                 <div>
-                  <dt className="text-muted-foreground">Cargos difíciles de cubrir</dt>
-                  <dd>{n.cargos_dificiles_cubrir ?? "—"}</dd>
+                  <p className="text-muted-foreground text-xs">Cargos difíciles de cubrir</p>
+                  <p>{n.cargos_dificiles_cubrir ?? "—"}</p>
                 </div>
                 <div>
-                  <dt className="text-muted-foreground">Habilidades escasas</dt>
-                  <dd>{n.habilidades_escasas ?? "—"}</dd>
+                  <p className="text-muted-foreground text-xs">Habilidades escasas</p>
+                  <p>{n.habilidades_escasas ?? "—"}</p>
                 </div>
                 <div>
-                  <dt className="text-muted-foreground">Formación necesaria</dt>
-                  <dd>{n.formacion_necesaria ?? "—"}</dd>
+                  <p className="text-muted-foreground text-xs">Formación necesaria</p>
+                  <p>{n.formacion_necesaria ?? "—"}</p>
                 </div>
                 <div>
-                  <dt className="text-muted-foreground">Interés en ASOTOY College</dt>
-                  <dd>{n.interes_asotoy_college ?? "—"}</dd>
+                  <p className="text-muted-foreground text-xs">Interés en ASOTOY College</p>
+                  <p>{n.interes_asotoy_college ?? "—"}</p>
                 </div>
                 <div>
-                  <dt className="text-muted-foreground">Comentarios</dt>
-                  <dd>{n.comentarios_adicionales ?? "—"}</dd>
+                  <p className="text-muted-foreground text-xs">Comentarios</p>
+                  <p>{n.comentarios_adicionales ?? "—"}</p>
                 </div>
               </div>
             ))}
-          </dl>
+          </div>
         ) : (
           <p className="text-sm text-muted-foreground">Sin datos registrados.</p>
         )}
