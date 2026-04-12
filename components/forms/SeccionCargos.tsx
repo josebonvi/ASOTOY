@@ -5,15 +5,42 @@ import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { useAutoSave } from "@/hooks/useAutoSave";
 import { useFormProgress } from "@/hooks/useFormProgress";
-import { NIVELES_TOYOTA, CARGOS_MECANICA, AREAS_TALLER } from "@/lib/constants";
+import { NIVELES_TOYOTA, CARGOS_MECANICA } from "@/lib/constants";
 import type { Cargo, Area } from "@/lib/types";
-import { DynamicTable, type ColumnConfig } from "@/components/forms/DynamicTable";
 import { SaveIndicator } from "@/components/shared/SaveIndicator";
 import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Button } from "@/components/ui/button";
-import { ArrowRight } from "lucide-react";
+import {
+  ArrowRight,
+  Wrench,
+  ShieldCheck,
+  Headphones,
+  Settings,
+  Monitor,
+  ChevronDown,
+  ChevronUp,
+  Users,
+} from "lucide-react";
+
+const CATEGORIAS = [
+  { key: "tecnico", label: "Técnicos del taller", icon: Wrench, desc: "Mecánicos y técnicos certificados por Toyota" },
+  { key: "supervision", label: "Supervisión y coordinación", icon: ShieldCheck, desc: "Jefes de taller, coordinadores, líderes" },
+  { key: "atencion", label: "Atención al cliente", icon: Headphones, desc: "Asesores de servicio, recepción, citas" },
+  { key: "soporte", label: "Soporte operativo", icon: Settings, desc: "Garantía, controlistas, almacén" },
+  { key: "administrativo", label: "Administrativo", icon: Monitor, desc: "Soporte IT y administración del taller" },
+] as const;
+
+interface CargoEntry {
+  cargoKey: string;
+  nombre_cargo: string;
+  nivel_toyota: string;
+  nivel_interno: string;
+  num_personas: number | null;
+  certificado_toyota: boolean;
+}
 
 interface SeccionCargosProps {
   concesionarioId: string;
@@ -25,137 +52,100 @@ interface SeccionCargosProps {
 export default function SeccionCargos({
   concesionarioId,
   cargos: initialCargos,
-  areas,
   readOnly,
 }: SeccionCargosProps) {
   const router = useRouter();
   const supabase = createClient();
   const { markSectionComplete } = useFormProgress(concesionarioId);
 
-  // Build cargo options grouped by category
-  const categoriaLabels: Record<string, string> = {
-    tecnico: "— Técnicos —",
-    supervision: "— Supervisión —",
-    atencion: "— Atención al cliente —",
-    soporte: "— Soporte operativo —",
-    administrativo: "— Administrativo —",
+  // Build initial state from DB data
+  const buildInitialEntries = (): Record<string, CargoEntry> => {
+    const entries: Record<string, CargoEntry> = {};
+    for (const cargo of initialCargos) {
+      // Try to match to a known cargo key
+      const matched = CARGOS_MECANICA.find(
+        (c) => c.value === cargo.nombre_cargo || c.label === cargo.nombre_cargo
+      );
+      const key = matched?.value ?? `custom_${cargo.id}`;
+      entries[key] = {
+        cargoKey: key,
+        nombre_cargo: matched?.label ?? cargo.nombre_cargo,
+        nivel_toyota: cargo.nivel_toyota ?? "",
+        nivel_interno: cargo.nivel_interno ?? "",
+        num_personas: cargo.num_personas,
+        certificado_toyota: cargo.certificado_toyota,
+      };
+    }
+    return entries;
   };
 
-  const cargoOptions: { value: string; label: string }[] = [];
-  let lastCat = "";
-  for (const c of CARGOS_MECANICA) {
-    if (c.categoria !== lastCat) {
-      cargoOptions.push({ value: `__header_${c.categoria}`, label: categoriaLabels[c.categoria] ?? c.categoria });
-      lastCat = c.categoria;
+  const [selectedCargos, setSelectedCargos] = useState<Record<string, CargoEntry>>(buildInitialEntries);
+  const [expandedCats, setExpandedCats] = useState<Record<string, boolean>>(() => {
+    // Auto-expand categories that have selected cargos
+    const expanded: Record<string, boolean> = {};
+    for (const cat of CATEGORIAS) {
+      const hasCargos = CARGOS_MECANICA
+        .filter((c) => c.categoria === cat.key)
+        .some((c) => selectedCargos[c.value]);
+      expanded[cat.key] = hasCargos;
     }
-    cargoOptions.push({ value: c.value, label: c.label });
-  }
+    // Always expand tecnico by default
+    expanded.tecnico = true;
+    return expanded;
+  });
 
-  // Combine areas from DB + taller standard areas
-  const areaOptions = [
-    ...AREAS_TALLER.map((a) => ({ value: a.value, label: a.label })),
-    ...areas
-      .filter((a) => !AREAS_TALLER.some((at) => at.value === a.nombre_area || at.label === a.nombre_area))
-      .map((a) => ({ value: a.nombre_area, label: a.nombre_area })),
-  ];
-
-  const cargoColumns: ColumnConfig[] = [
-    {
-      key: "nombre_cargo",
-      label: "Cargo",
-      type: "select",
-      options: cargoOptions,
-    },
-    {
-      key: "area",
-      label: "Área del taller",
-      type: "select",
-      options: areaOptions,
-    },
-    {
-      key: "nivel_toyota",
-      label: "Nivel Toyota",
-      type: "select",
-      options: NIVELES_TOYOTA.map((n) => ({ value: n.value, label: `${n.label} (${n.equivalencia})` })),
-    },
-    {
-      key: "nivel_interno",
-      label: "Nombre interno",
-      type: "text",
-      placeholder: "Ej: G1, Junior, Senior",
-    },
-    {
-      key: "num_personas",
-      label: "N° personas",
-      type: "number",
-      placeholder: "0",
-      width: "100px",
-    },
-    {
-      key: "certificado_toyota",
-      label: "Cert. Toyota",
-      type: "toggle",
-      width: "90px",
-    },
-  ];
-
-  const [cargosData, setCargosData] = useState<Record<string, unknown>[]>(
-    initialCargos.length > 0
-      ? initialCargos.map((c) => ({
-          nombre_cargo: c.nombre_cargo,
-          area: c.area ?? "",
-          nivel_toyota: c.nivel_toyota ?? "",
-          nivel_interno: c.nivel_interno ?? "",
-          num_personas: c.num_personas,
-          certificado_toyota: c.certificado_toyota,
-        }))
-      : [
-          {
-            nombre_cargo: "",
-            area: "",
-            nivel_toyota: "",
-            nivel_interno: "",
-            num_personas: null,
-            certificado_toyota: false,
-          },
-        ]
-  );
-
-  const [evaluacionesToyota, setEvaluacionesToyota] = useState(false);
-  const [evaluacionesDetalle, setEvaluacionesDetalle] = useState("");
   const [motivoRotacion, setMotivoRotacion] = useState(
     initialCargos.find((c) => c.motivo_rotacion)?.motivo_rotacion ?? ""
   );
 
-  const formData = {
-    cargosData,
-    evaluacionesToyota,
-    evaluacionesDetalle,
-    motivoRotacion,
-  };
+  function toggleCargo(cargoKey: string, cargoLabel: string) {
+    setSelectedCargos((prev) => {
+      if (prev[cargoKey]) {
+        const next = { ...prev };
+        delete next[cargoKey];
+        return next;
+      }
+      return {
+        ...prev,
+        [cargoKey]: {
+          cargoKey,
+          nombre_cargo: cargoLabel,
+          nivel_toyota: "",
+          nivel_interno: "",
+          num_personas: null,
+          certificado_toyota: false,
+        },
+      };
+    });
+  }
+
+  function updateCargo(cargoKey: string, field: keyof CargoEntry, value: unknown) {
+    setSelectedCargos((prev) => ({
+      ...prev,
+      [cargoKey]: { ...prev[cargoKey], [field]: value },
+    }));
+  }
+
+  const formData = { selectedCargos, motivoRotacion };
 
   const saveToDb = useCallback(
     async (data: typeof formData) => {
-      // Delete old cargos and insert new ones
       await supabase
         .from("cargos")
         .delete()
         .eq("concesionario_id", concesionarioId);
 
-      const validCargos = data.cargosData.filter(
-        (c) => (c.nombre_cargo as string)?.trim() !== ""
-      );
-
-      if (validCargos.length > 0) {
+      const entries = Object.values(data.selectedCargos);
+      if (entries.length > 0) {
         await supabase.from("cargos").insert(
-          validCargos.map((c) => ({
+          entries.map((c) => ({
             concesionario_id: concesionarioId,
-            nombre_cargo: c.nombre_cargo as string,
-            area: (c.area as string) || null,
-            nivel_toyota: (c.nivel_toyota as string) || null,
-            nivel_interno: (c.nivel_interno as string) || null,
-            num_personas: c.num_personas as number | null,
-            certificado_toyota: c.certificado_toyota as boolean,
+            nombre_cargo: c.nombre_cargo,
+            area: "Taller Mecánico",
+            nivel_toyota: c.nivel_toyota || null,
+            nivel_interno: c.nivel_interno || null,
+            num_personas: c.num_personas,
+            certificado_toyota: c.certificado_toyota,
             motivo_rotacion: data.motivoRotacion || null,
           }))
         );
@@ -177,64 +167,234 @@ export default function SeccionCargos({
     router.refresh();
   }
 
+  const totalPersonas = Object.values(selectedCargos).reduce(
+    (sum, c) => sum + (c.num_personas ?? 0),
+    0
+  );
+  const totalCargos = Object.keys(selectedCargos).length;
+
   return (
     <div className="space-y-6">
-      <div className="flex justify-end">
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-3 text-sm text-muted-foreground">
+          <Users size={16} />
+          <span>
+            <strong className="text-foreground">{totalCargos}</strong> cargos
+            seleccionados
+            {totalPersonas > 0 && (
+              <>
+                {" · "}
+                <strong className="text-foreground">{totalPersonas}</strong>{" "}
+                personas
+              </>
+            )}
+          </span>
+        </div>
         <SaveIndicator status={status} />
       </div>
 
-      {/* Cargos table */}
-      <div className="rounded-xl bg-card border border-border p-6">
-        <h3 className="text-sm font-semibold mb-1">
-          Cargos del departamento de mecánica *
-        </h3>
-        <p className="text-xs text-muted-foreground mb-4">
-          Seleccione los cargos que existen en su taller mecánico, indique
-          el nivel Toyota equivalente y cuántas personas ocupan cada cargo.
-        </p>
-        <DynamicTable
-          columns={cargoColumns}
-          data={cargosData}
-          onChange={setCargosData}
-          minRows={1}
-          addLabel="Agregar cargo"
-        />
+      {/* Notice */}
+      <div className="rounded-lg bg-primary/5 border border-primary/20 px-4 py-3 text-sm text-muted-foreground">
+        Marque los cargos que existen en su departamento de mecánica/servicio.
+        Para cada cargo seleccionado, indique cuántas personas lo ocupan y su
+        nivel Toyota.
       </div>
 
-      {/* Toyota evaluations */}
-      <div className="rounded-xl bg-card border border-border p-6 space-y-4">
-        <div className="flex items-center justify-between">
-          <div>
-            <Label>
-              ¿Las evaluaciones de Toyota afectan la estructura del
-              concesionario?
-            </Label>
+      {/* Categories */}
+      {CATEGORIAS.map((cat) => {
+        const cargosInCat = CARGOS_MECANICA.filter(
+          (c) => c.categoria === cat.key
+        );
+        const selectedInCat = cargosInCat.filter(
+          (c) => selectedCargos[c.value]
+        ).length;
+        const isExpanded = expandedCats[cat.key] ?? false;
+        const Icon = cat.icon;
+
+        return (
+          <div
+            key={cat.key}
+            className="rounded-xl bg-card border border-border overflow-hidden"
+          >
+            {/* Category header */}
+            <button
+              type="button"
+              onClick={() =>
+                setExpandedCats((prev) => ({
+                  ...prev,
+                  [cat.key]: !prev[cat.key],
+                }))
+              }
+              className="w-full flex items-center gap-3 p-4 sm:p-5 text-left hover:bg-accent/50 transition-colors"
+            >
+              <div className="flex items-center justify-center w-9 h-9 rounded-lg bg-primary/10 text-primary shrink-0">
+                <Icon size={18} />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-semibold">{cat.label}</p>
+                <p className="text-xs text-muted-foreground">{cat.desc}</p>
+              </div>
+              {selectedInCat > 0 && (
+                <span className="text-xs font-medium text-primary bg-primary/10 px-2 py-1 rounded-full shrink-0">
+                  {selectedInCat}
+                </span>
+              )}
+              {isExpanded ? (
+                <ChevronUp size={16} className="text-muted-foreground shrink-0" />
+              ) : (
+                <ChevronDown size={16} className="text-muted-foreground shrink-0" />
+              )}
+            </button>
+
+            {/* Cargo list */}
+            {isExpanded && (
+              <div className="border-t border-border">
+                {cargosInCat.map((cargo) => {
+                  const isSelected = !!selectedCargos[cargo.value];
+                  const entry = selectedCargos[cargo.value];
+
+                  return (
+                    <div
+                      key={cargo.value}
+                      className={`border-b border-border last:border-0 transition-colors ${
+                        isSelected ? "bg-primary/[0.03]" : ""
+                      }`}
+                    >
+                      {/* Cargo toggle row */}
+                      <div className="flex items-center gap-3 px-4 sm:px-5 py-3">
+                        <input
+                          type="checkbox"
+                          checked={isSelected}
+                          onChange={() =>
+                            toggleCargo(cargo.value, cargo.label)
+                          }
+                          disabled={readOnly}
+                          title={`Seleccionar ${cargo.label}`}
+                          aria-label={`Seleccionar ${cargo.label}`}
+                          className="h-4 w-4 rounded border-border accent-primary shrink-0"
+                        />
+                        <span
+                          className={`text-sm flex-1 ${
+                            isSelected
+                              ? "font-medium text-foreground"
+                              : "text-muted-foreground"
+                          }`}
+                        >
+                          {cargo.label}
+                        </span>
+                      </div>
+
+                      {/* Expanded details for selected cargo */}
+                      {isSelected && entry && (
+                        <div className="px-4 sm:px-5 pb-4 pt-1 ml-7">
+                          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                            <div className="space-y-1">
+                              <label className="text-xs text-muted-foreground">
+                                N° personas
+                              </label>
+                              <Input
+                                type="number"
+                                min={0}
+                                value={entry.num_personas ?? ""}
+                                onChange={(e) =>
+                                  updateCargo(
+                                    cargo.value,
+                                    "num_personas",
+                                    e.target.value === ""
+                                      ? null
+                                      : Number(e.target.value)
+                                  )
+                                }
+                                placeholder="0"
+                                disabled={readOnly}
+                                className="h-9"
+                              />
+                            </div>
+                            <div className="space-y-1">
+                              <label className="text-xs text-muted-foreground">
+                                Nivel Toyota
+                              </label>
+                              <select
+                                value={entry.nivel_toyota}
+                                onChange={(e) =>
+                                  updateCargo(
+                                    cargo.value,
+                                    "nivel_toyota",
+                                    e.target.value
+                                  )
+                                }
+                                disabled={readOnly}
+                                title="Nivel Toyota"
+                                aria-label={`Nivel Toyota para ${cargo.label}`}
+                                className="w-full h-9 bg-input border border-border rounded-md px-2 text-sm text-foreground"
+                              >
+                                <option value="">Seleccionar...</option>
+                                {NIVELES_TOYOTA.map((n) => (
+                                  <option key={n.value} value={n.value}>
+                                    {n.label}
+                                  </option>
+                                ))}
+                              </select>
+                            </div>
+                            <div className="space-y-1">
+                              <label className="text-xs text-muted-foreground">
+                                Nombre interno
+                              </label>
+                              <Input
+                                value={entry.nivel_interno}
+                                onChange={(e) =>
+                                  updateCargo(
+                                    cargo.value,
+                                    "nivel_interno",
+                                    e.target.value
+                                  )
+                                }
+                                placeholder="Ej: G2, Senior"
+                                disabled={readOnly}
+                                className="h-9"
+                              />
+                            </div>
+                            <div className="space-y-1">
+                              <label className="text-xs text-muted-foreground">
+                                Cert. Toyota
+                              </label>
+                              <div className="flex items-center h-9">
+                                <Switch
+                                  checked={entry.certificado_toyota}
+                                  onCheckedChange={(v) =>
+                                    updateCargo(
+                                      cargo.value,
+                                      "certificado_toyota",
+                                      v
+                                    )
+                                  }
+                                  disabled={readOnly}
+                                />
+                                <span className="ml-2 text-xs text-muted-foreground">
+                                  {entry.certificado_toyota ? "Sí" : "No"}
+                                </span>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            )}
           </div>
-          <Switch
-            checked={evaluacionesToyota}
-            onCheckedChange={setEvaluacionesToyota}
-            disabled={readOnly}
-          />
-        </div>
-        {evaluacionesToyota && (
-          <Textarea
-            value={evaluacionesDetalle}
-            onChange={(e) => setEvaluacionesDetalle(e.target.value)}
-            placeholder="Describa cómo afectan las evaluaciones de Toyota..."
-            rows={3}
-            disabled={readOnly}
-          />
-        )}
-      </div>
+        );
+      })}
 
       {/* Rotation */}
-      <div className="rounded-xl bg-card border border-border p-6 space-y-4">
+      <div className="rounded-xl bg-card border border-border p-4 sm:p-6 space-y-4">
         <div className="space-y-2">
-          <Label>Motivo principal de rotación de personal</Label>
+          <Label>Motivo principal de rotación de personal en el taller</Label>
           <Textarea
             value={motivoRotacion}
             onChange={(e) => setMotivoRotacion(e.target.value)}
-            placeholder="¿Por qué renuncian o son despedidos los empleados con más frecuencia?"
+            placeholder="¿Por qué renuncian o son despedidos los técnicos y personal del taller con más frecuencia?"
             rows={3}
             disabled={readOnly}
           />
