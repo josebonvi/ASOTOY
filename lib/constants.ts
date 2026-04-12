@@ -1,13 +1,54 @@
 export const NIVELES_TOYOTA = [
-  { value: "tecnico_g1", label: "Técnico G1" },
-  { value: "tecnico_g2", label: "Técnico G2" },
-  { value: "tecnico_g3", label: "Técnico G3" },
-  { value: "tecnico_g4", label: "Técnico G4" },
-  { value: "asesor_servicio", label: "Asesor de Servicio" },
-  { value: "asesor_tecnico", label: "Asesor Técnico" },
-  { value: "jefe_taller", label: "Jefe de Taller" },
-  { value: "analista_garantia", label: "Analista de Garantía" },
-  { value: "no_aplica", label: "No aplica (cargo no definido por Toyota)" },
+  { value: "ayudante", label: "Ayudante / Pasante", equivalencia: "Pre-G1" },
+  { value: "tecnico_g1", label: "Técnico Toyota / G1", equivalencia: "G1 — Entrada certificada" },
+  { value: "tecnico_g2", label: "Técnico Profesional / G2", equivalencia: "G2 — Intermedio" },
+  { value: "tecnico_g3", label: "Técnico Diagnóstico / G3", equivalencia: "G3 — Avanzado" },
+  { value: "tecnico_g4", label: "Técnico Maestro / G4", equivalencia: "G4 — Máximo nivel técnico" },
+  { value: "no_aplica", label: "No aplica", equivalencia: "Cargos administrativos del taller" },
+] as const;
+
+export const CARGOS_MECANICA = [
+  // Técnicos
+  { value: "ayudante_mecanica", label: "Ayudante de Mecánica", categoria: "tecnico" },
+  { value: "tecnico_g1", label: "Técnico Toyota (G1)", categoria: "tecnico" },
+  { value: "tecnico_g2", label: "Técnico Profesional (G2)", categoria: "tecnico" },
+  { value: "tecnico_g3", label: "Técnico Diagnóstico (G3)", categoria: "tecnico" },
+  { value: "tecnico_g4", label: "Técnico Maestro (G4)", categoria: "tecnico" },
+  { value: "tecnico_calidad", label: "Técnico de Calidad", categoria: "tecnico" },
+  { value: "tecnico_probador", label: "Técnico Probador", categoria: "tecnico" },
+  // Supervisión
+  { value: "jefe_taller", label: "Jefe de Taller", categoria: "supervision" },
+  { value: "coordinador_servicios", label: "Coordinador de Servicios", categoria: "supervision" },
+  { value: "coordinador_admin_mecanica", label: "Coordinador Administrativo de Mecánica", categoria: "supervision" },
+  { value: "supervisor_recepcion_citas", label: "Supervisor de Recepción y Citas", categoria: "supervision" },
+  { value: "lider_kaizen", label: "Líder Kaizen", categoria: "supervision" },
+  // Atención al cliente
+  { value: "asesor_servicio", label: "Asesor de Servicio", categoria: "atencion" },
+  { value: "asesor_citas", label: "Asesor de Citas", categoria: "atencion" },
+  { value: "receptor", label: "Receptor", categoria: "atencion" },
+  { value: "recepcionista_taller", label: "Recepcionista del Taller", categoria: "atencion" },
+  { value: "atencion_cliente", label: "Atención al Cliente", categoria: "atencion" },
+  { value: "asesor_redes_seguros", label: "Asesor de Redes y Seguros", categoria: "atencion" },
+  // Soporte operativo
+  { value: "analista_garantia", label: "Analista de Garantía", categoria: "soporte" },
+  { value: "analista_campanas", label: "Analista de Campañas", categoria: "soporte" },
+  { value: "controlista", label: "Controlista", categoria: "soporte" },
+  { value: "controlista_express", label: "Controlista Servicios Express", categoria: "soporte" },
+  { value: "almacenista", label: "Almacenista", categoria: "soporte" },
+  { value: "vendedor_repuestos", label: "Vendedor de Repuestos (Taller)", categoria: "soporte" },
+  { value: "chofer", label: "Chofer", categoria: "soporte" },
+  // Administrativo
+  { value: "analista_programador", label: "Analista Programador (Soporte IT Taller)", categoria: "administrativo" },
+] as const;
+
+export const AREAS_TALLER = [
+  { value: "taller_mecanica_general", label: "Taller Mecánica General" },
+  { value: "taller_mecanica_1", label: "Taller Mecánica I" },
+  { value: "taller_mecanica_2", label: "Taller Mecánica II" },
+  { value: "taller_express", label: "Taller Express" },
+  { value: "recepcion_citas", label: "Recepción y Citas" },
+  { value: "admin_mecanica", label: "Administración de Mecánica" },
+  { value: "control_calidad", label: "Control de Calidad" },
 ] as const;
 
 export const ESTADOS_VENEZUELA = [

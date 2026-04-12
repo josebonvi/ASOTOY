@@ -101,11 +101,17 @@ export function DynamicTable({
                           className="w-full bg-input border border-border rounded-md px-2 py-1.5 text-sm text-foreground"
                         >
                           <option value="">Seleccionar...</option>
-                          {col.options?.map((opt) => (
-                            <option key={opt.value} value={opt.value}>
-                              {opt.label}
-                            </option>
-                          ))}
+                          {col.options?.map((opt) =>
+                            opt.value.startsWith("__header_") ? (
+                              <option key={opt.value} disabled className="font-semibold text-muted-foreground">
+                                {opt.label}
+                              </option>
+                            ) : (
+                              <option key={opt.value} value={opt.value}>
+                                {opt.label}
+                              </option>
+                            )
+                          )}
                         </select>
                       ) : col.type === "toggle" ? (
                         <input

@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { useAutoSave } from "@/hooks/useAutoSave";
 import { useFormProgress } from "@/hooks/useFormProgress";
-import { NIVELES_TOYOTA } from "@/lib/constants";
+import { NIVELES_TOYOTA, CARGOS_MECANICA, AREAS_TALLER } from "@/lib/constants";
 import type { Cargo, Area } from "@/lib/types";
 import { DynamicTable, type ColumnConfig } from "@/components/forms/DynamicTable";
 import { SaveIndicator } from "@/components/shared/SaveIndicator";
@@ -32,21 +32,43 @@ export default function SeccionCargos({
   const supabase = createClient();
   const { markSectionComplete } = useFormProgress(concesionarioId);
 
-  const areaOptions = areas.map((a) => ({
-    value: a.nombre_area,
-    label: a.nombre_area,
-  }));
+  // Build cargo options grouped by category
+  const categoriaLabels: Record<string, string> = {
+    tecnico: "— Técnicos —",
+    supervision: "— Supervisión —",
+    atencion: "— Atención al cliente —",
+    soporte: "— Soporte operativo —",
+    administrativo: "— Administrativo —",
+  };
+
+  const cargoOptions: { value: string; label: string }[] = [];
+  let lastCat = "";
+  for (const c of CARGOS_MECANICA) {
+    if (c.categoria !== lastCat) {
+      cargoOptions.push({ value: `__header_${c.categoria}`, label: categoriaLabels[c.categoria] ?? c.categoria });
+      lastCat = c.categoria;
+    }
+    cargoOptions.push({ value: c.value, label: c.label });
+  }
+
+  // Combine areas from DB + taller standard areas
+  const areaOptions = [
+    ...AREAS_TALLER.map((a) => ({ value: a.value, label: a.label })),
+    ...areas
+      .filter((a) => !AREAS_TALLER.some((at) => at.value === a.nombre_area || at.label === a.nombre_area))
+      .map((a) => ({ value: a.nombre_area, label: a.nombre_area })),
+  ];
 
   const cargoColumns: ColumnConfig[] = [
     {
       key: "nombre_cargo",
       label: "Cargo",
-      type: "text",
-      placeholder: "Ej: Mecánico, Asesor de ventas",
+      type: "select",
+      options: cargoOptions,
     },
     {
       key: "area",
-      label: "Área",
+      label: "Área del taller",
       type: "select",
       options: areaOptions,
     },
@@ -54,13 +76,13 @@ export default function SeccionCargos({
       key: "nivel_toyota",
       label: "Nivel Toyota",
       type: "select",
-      options: [...NIVELES_TOYOTA],
+      options: NIVELES_TOYOTA.map((n) => ({ value: n.value, label: `${n.label} (${n.equivalencia})` })),
     },
     {
       key: "nivel_interno",
-      label: "Nivel interno",
+      label: "Nombre interno",
       type: "text",
-      placeholder: "Ej: Junior, Senior",
+      placeholder: "Ej: G1, Junior, Senior",
     },
     {
       key: "num_personas",
@@ -164,11 +186,11 @@ export default function SeccionCargos({
       {/* Cargos table */}
       <div className="rounded-xl bg-card border border-border p-6">
         <h3 className="text-sm font-semibold mb-1">
-          Clasificación de cargos *
+          Cargos del departamento de mecánica *
         </h3>
         <p className="text-xs text-muted-foreground mb-4">
-          Liste todos los cargos del concesionario con su nivel Toyota y
-          certificación.
+          Seleccione los cargos que existen en su taller mecánico, indique
+          el nivel Toyota equivalente y cuántas personas ocupan cada cargo.
         </p>
         <DynamicTable
           columns={cargoColumns}
