@@ -135,9 +135,9 @@ export default function ConcesionariosTable({ concesionarios }: Props) {
     <div>
       {/* Barra de progreso global */}
       <div className="rounded-xl p-5 bg-card border border-border mb-6">
-        <div className="flex items-center justify-between mb-2">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 mb-2">
           <h3 className="text-sm font-semibold">Progreso general</h3>
-          <span className="text-sm text-muted-foreground">
+          <span className="text-xs sm:text-sm text-muted-foreground">
             {completados} de {total} completados ({progressPct}%)
           </span>
         </div>
@@ -147,7 +147,7 @@ export default function ConcesionariosTable({ concesionarios }: Props) {
             style={{ width: `${progressPct}%` }}
           />
         </div>
-        <div className="flex gap-5 mt-2.5 text-xs text-muted-foreground">
+        <div className="flex flex-wrap gap-3 sm:gap-5 mt-2.5 text-xs text-muted-foreground">
           <span className="flex items-center gap-1.5">
             <span className="w-2 h-2 rounded-full bg-success" />
             {counts.completado} completados
@@ -232,7 +232,7 @@ export default function ConcesionariosTable({ concesionarios }: Props) {
               <th className="text-left px-4 py-3 font-medium text-muted-foreground">
                 Estado
               </th>
-              <th className="text-left px-4 py-3 font-medium text-muted-foreground w-40">
+              <th className="text-left px-4 py-3 font-medium text-muted-foreground w-40 hidden sm:table-cell">
                 Progreso
               </th>
               <th className="text-left px-4 py-3 font-medium text-muted-foreground hidden lg:table-cell">
@@ -290,7 +290,7 @@ export default function ConcesionariosTable({ concesionarios }: Props) {
                         {ESTADO_LABELS[c.formulario_estado]}
                       </span>
                     </td>
-                    <td className="px-4 py-4">
+                    <td className="px-4 py-4 hidden sm:table-cell">
                       <div className="flex items-center gap-2">
                         <div className="flex-1 h-1.5 bg-muted rounded-full overflow-hidden">
                           <div

@@ -37,7 +37,7 @@ export default async function DealerLayout({
         concesionarioNombre={concesionario.nombre}
         progreso={progreso}
       />
-      <main className="flex-1 ml-64 p-6 overflow-auto">{children}</main>
+      <main className="flex-1 md:ml-64 p-4 pt-16 md:pt-6 md:p-6 overflow-auto">{children}</main>
     </div>
   );
 }

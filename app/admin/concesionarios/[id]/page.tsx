@@ -54,7 +54,7 @@ export default async function ConcesionarioDetallePage({
         <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground mb-4">
           Sección 1 — Datos del Concesionario
         </h2>
-        <div className="grid grid-cols-2 gap-4 text-sm">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
           <div>
             <p className="text-muted-foreground text-xs">Empleados</p>
             <p className="font-medium">{concesionario.num_empleados ?? "—"}</p>
@@ -65,7 +65,7 @@ export default async function ConcesionarioDetallePage({
               {concesionario.tiene_organigrama ? "Sí" : "No"}
             </p>
           </div>
-          <div className="col-span-2">
+          <div className="sm:col-span-2">
             <p className="text-muted-foreground text-xs">Cadena de mando</p>
             <p className="font-medium">{concesionario.cadena_mando ?? "—"}</p>
           </div>
@@ -163,7 +163,7 @@ export default async function ConcesionarioDetallePage({
           <div className="space-y-3">
             {perfiles.map((p) => (
               <div key={p.id} className="border-b border-border pb-3 last:border-0">
-                <div className="grid grid-cols-2 gap-2 text-xs text-muted-foreground">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs text-muted-foreground">
                   <span>Educación: {p.educacion_minima ?? "—"}</span>
                   <span>Experiencia: {p.experiencia_minima_anios ?? "—"} años</span>
                   <span>Habilidades: {p.habilidades_clave ?? "—"}</span>

@@ -73,9 +73,9 @@ export default async function AdminDashboard() {
 
       {/* Progress bar */}
       <div className="rounded-xl p-6 bg-card border border-border mb-8">
-        <div className="flex items-center justify-between mb-3">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 mb-3">
           <h3 className="text-sm font-semibold">Progreso general</h3>
-          <span className="text-sm text-muted-foreground">
+          <span className="text-xs sm:text-sm text-muted-foreground">
             {total > 0 ? Math.round((completados / total) * 100) : 0}%
             completado
           </span>
@@ -88,7 +88,7 @@ export default async function AdminDashboard() {
             }}
           />
         </div>
-        <div className="flex gap-6 mt-3 text-xs text-muted-foreground">
+        <div className="flex flex-wrap gap-3 sm:gap-6 mt-3 text-xs text-muted-foreground">
           <span className="flex items-center gap-1.5">
             <span className="w-2 h-2 rounded-full bg-success" />
             {completados} completados

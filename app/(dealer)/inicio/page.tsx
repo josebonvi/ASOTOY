@@ -59,7 +59,7 @@ export default async function DealerDashboard() {
   return (
     <div className="max-w-4xl">
       {/* Welcome banner */}
-      <div className="rounded-xl bg-gradient-to-br from-primary via-primary/90 to-primary/70 p-8 mb-6 relative overflow-hidden">
+      <div className="rounded-xl bg-gradient-to-br from-primary via-primary/90 to-primary/70 p-5 sm:p-8 mb-6 relative overflow-hidden">
         {/* Decorative circles */}
         <div className="absolute -top-12 -right-12 w-40 h-40 rounded-full bg-white/5" />
         <div className="absolute -bottom-8 -right-4 w-24 h-24 rounded-full bg-white/5" />
@@ -67,7 +67,7 @@ export default async function DealerDashboard() {
           <p className="text-primary-foreground/60 text-xs font-medium uppercase tracking-wider mb-2">
             Estudio de Remuneración — Red Toyota Venezuela
           </p>
-          <h1 className="text-2xl font-bold text-primary-foreground">
+          <h1 className="text-xl sm:text-2xl font-bold text-primary-foreground">
             Bienvenido, {concesionario.nombre}
           </h1>
           <p className="text-primary-foreground/70 mt-2 text-sm max-w-lg">
@@ -158,7 +158,7 @@ export default async function DealerDashboard() {
       </div>
 
       {/* Section list */}
-      <div className="rounded-xl bg-card border border-border p-6">
+      <div className="rounded-xl bg-card border border-border p-4 sm:p-6">
         <h3 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground mb-4">
           Secciones del formulario
         </h3>
@@ -178,7 +178,7 @@ export default async function DealerDashboard() {
                     : `/formulario/${seccion.id}`
                 }
                 aria-disabled={isBlocked || undefined}
-                className={`flex items-center gap-4 p-4 rounded-lg border transition-colors ${
+                className={`flex items-center gap-3 sm:gap-4 p-3 sm:p-4 rounded-lg border transition-colors ${
                   isCompleted
                     ? "border-success/30 bg-success/5"
                     : isBlocked
