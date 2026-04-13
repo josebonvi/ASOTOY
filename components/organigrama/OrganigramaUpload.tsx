@@ -177,23 +177,18 @@ export default function OrganigramaUpload({
 
       setProgress(95)
 
-      // Get the public URL
-      const {
-        data: { publicUrl },
-      } = supabase.storage.from("organigramas").getPublicUrl(filePath)
-
-      // Create record in organigramas table
+      // Store the storage path (not public URL — bucket is private)
+      // Admin will generate a signed URL when viewing
       const { error: insertError } = await supabase
         .from("organigramas")
         .insert({
           concesionario_id: concesionarioId,
           tipo: "upload",
-          archivo_url: publicUrl,
+          estado: "pendiente",
+          archivo_url: filePath,
           archivo_nombre: file.name,
           archivo_tipo: file.type,
-          archivo_size: file.size,
-          notas: notes || null,
-          storage_path: filePath,
+          notas_concesionario: notes || null,
         })
 
       if (insertError) {

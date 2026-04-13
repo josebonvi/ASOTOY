@@ -571,14 +571,23 @@ export default function OrganigramaProcessingClient({
                 </div>
               </div>
               {organigrama.archivo_url && (
-                <a
-                  href={organigrama.archivo_url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-block text-sm text-primary underline hover:no-underline"
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={async () => {
+                    const supabase = createClient();
+                    const { data } = await supabase.storage
+                      .from("organigramas")
+                      .createSignedUrl(organigrama.archivo_url!, 3600);
+                    if (data?.signedUrl) {
+                      window.open(data.signedUrl, "_blank");
+                    } else {
+                      toast.error("No se pudo generar el enlace al archivo");
+                    }
+                  }}
                 >
                   Abrir archivo
-                </a>
+                </Button>
               )}
             </div>
           )}
