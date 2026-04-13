@@ -32,11 +32,31 @@ interface Organigrama {
   } | null;
 }
 
-interface EstadoConfig {
-  label: string;
-  className: string;
-  icon: React.ElementType;
-}
+const ESTADO_CONFIG: Record<
+  string,
+  { label: string; className: string; icon: React.ElementType }
+> = {
+  pendiente: {
+    label: "Pendiente",
+    className: "bg-yellow-500/15 text-yellow-400 border-yellow-500/30",
+    icon: Clock,
+  },
+  en_revision: {
+    label: "En revisión",
+    className: "bg-blue-500/15 text-blue-400 border-blue-500/30",
+    icon: AlertCircle,
+  },
+  aprobado: {
+    label: "Aprobado",
+    className: "bg-green-500/15 text-green-400 border-green-500/30",
+    icon: CheckCircle2,
+  },
+  rechazado: {
+    label: "Rechazado",
+    className: "bg-red-500/15 text-red-400 border-red-500/30",
+    icon: XCircle,
+  },
+};
 
 const TABS = [
   { key: "todos", label: "Todos" },
@@ -57,10 +77,8 @@ function formatDate(dateStr: string) {
 
 export default function OrganigramasFilterTabs({
   organigramas,
-  estadoConfig,
 }: {
   organigramas: Organigrama[];
-  estadoConfig: Record<string, EstadoConfig>;
 }) {
   const [activeTab, setActiveTab] = useState("todos");
 
@@ -122,7 +140,7 @@ export default function OrganigramasFilterTabs({
               </thead>
               <tbody>
                 {filtered.map((org) => {
-                  const config = estadoConfig[org.estado] ?? {
+                  const config = ESTADO_CONFIG[org.estado] ?? {
                     label: org.estado,
                     className: "bg-muted text-muted-foreground",
                     icon: AlertCircle,

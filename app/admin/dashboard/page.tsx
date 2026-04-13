@@ -136,7 +136,8 @@ export default async function AdminDashboard() {
               ?.filter((o) => o.estado === "pendiente")
               .slice(0, 5)
               .map((o) => {
-                const conc = o.concesionario as unknown as { nombre: string } | null;
+                const rawConc = o.concesionario;
+                const conc = (Array.isArray(rawConc) ? rawConc[0] : rawConc) as { nombre: string } | null;
                 return (
                   <Link
                     key={o.id}

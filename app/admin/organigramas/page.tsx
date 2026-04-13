@@ -1,42 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
-import Link from "next/link";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Eye, FileText, Hammer, Clock, CheckCircle2, XCircle, AlertCircle } from "lucide-react";
+import { FileText } from "lucide-react";
 import OrganigramasFilterTabs from "./OrganigramasFilterTabs";
-
-const ESTADO_CONFIG: Record<string, { label: string; className: string; icon: React.ElementType }> = {
-  pendiente: {
-    label: "Pendiente",
-    className: "bg-yellow-500/15 text-yellow-400 border-yellow-500/30",
-    icon: Clock,
-  },
-  en_revision: {
-    label: "En revisión",
-    className: "bg-blue-500/15 text-blue-400 border-blue-500/30",
-    icon: AlertCircle,
-  },
-  aprobado: {
-    label: "Aprobado",
-    className: "bg-green-500/15 text-green-400 border-green-500/30",
-    icon: CheckCircle2,
-  },
-  rechazado: {
-    label: "Rechazado",
-    className: "bg-red-500/15 text-red-400 border-red-500/30",
-    icon: XCircle,
-  },
-};
-
-function formatDate(dateStr: string) {
-  return new Date(dateStr).toLocaleDateString("es-VE", {
-    day: "2-digit",
-    month: "short",
-    year: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-  });
-}
 
 export default async function OrganigramasAdminPage() {
   const supabase = await createClient();
@@ -46,7 +10,13 @@ export default async function OrganigramasAdminPage() {
     .select("*, concesionario:concesionarios(nombre, zona, estado)")
     .order("created_at", { ascending: false });
 
-  const items = organigramas ?? [];
+  const items = (organigramas ?? []).map((o) => ({
+    ...o,
+    // Supabase returns the join as an array when not using .single()
+    concesionario: Array.isArray(o.concesionario)
+      ? o.concesionario[0] ?? null
+      : o.concesionario ?? null,
+  }));
 
   const totalCount = items.length;
   const pendientesCount = items.filter((o) => o.estado === "pendiente").length;
@@ -83,7 +53,16 @@ export default async function OrganigramasAdminPage() {
       </div>
 
       {/* Filter Tabs + Table */}
-      <OrganigramasFilterTabs organigramas={items} estadoConfig={ESTADO_CONFIG} />
+      {items.length === 0 ? (
+        <div className="rounded-xl border border-border bg-card p-12 text-center">
+          <FileText className="mx-auto h-8 w-8 text-muted-foreground mb-3" />
+          <p className="text-sm text-muted-foreground">
+            Aún no hay organigramas enviados por concesionarios
+          </p>
+        </div>
+      ) : (
+        <OrganigramasFilterTabs organigramas={items} />
+      )}
     </div>
   );
 }
