@@ -13,11 +13,13 @@ import {
   LogOut,
   Menu,
   X,
+  Network,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const navItems = [
   { href: "/admin/dashboard", label: "Dashboard", icon: LayoutDashboard },
+  { href: "/admin/organigramas", label: "Organigramas", icon: Network },
   { href: "/admin/concesionarios", label: "Concesionarios", icon: Building2 },
   { href: "/admin/resultados", label: "Resultados", icon: BarChart3 },
   { href: "/admin/exportar", label: "Exportar", icon: Download },

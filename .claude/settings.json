@@ -1,6 +1,50 @@
 {
   "permissions": {
-    "allow": ["Bash(*)", "Read(*)", "Write(*)", "Edit(*)", "MultiEdit(*)"]
+    "allow": [
+      "Bash(*)",
+      "Read(*)",
+      "Write(*)",
+      "Edit(*)",
+      "MultiEdit(*)",
+      "Glob(*)",
+      "Grep(*)",
+      "Agent(*)",
+      "WebFetch(*)",
+      "WebSearch(*)",
+      "TodoWrite(*)",
+      "NotebookEdit(*)",
+      "Skill(*)",
+      "ToolSearch(*)",
+      "Monitor(*)",
+      "SendMessage(*)",
+      "TaskOutput(*)",
+      "TaskStop(*)",
+      "TeamCreate(*)",
+      "TeamDelete(*)",
+      "CronCreate(*)",
+      "CronDelete(*)",
+      "CronList(*)",
+      "RemoteTrigger(*)",
+      "EnterPlanMode(*)",
+      "ExitPlanMode(*)",
+      "EnterWorktree(*)",
+      "ExitWorktree(*)",
+      "AskUserQuestion(*)",
+      "ScheduleWakeup(*)",
+      "ReadMcpResourceTool(*)",
+      "ListMcpResourcesTool(*)",
+      "mcp__claude_ai_Canva__*",
+      "mcp__claude_ai_Cloudinary__*",
+      "mcp__claude_ai_Gmail__*",
+      "mcp__claude_ai_Google_Calendar__*",
+      "mcp__claude_ai_Google_Drive__*",
+      "mcp__claude_ai_Notion__*",
+      "mcp__claude_ai_Supabase__*",
+      "mcp__claude_ai_Vercel__*",
+      "mcp__claude_ai_Close__*",
+      "mcp__claude_ai_n8n__*",
+      "mcp__figma__*"
+    ]
   },
   "env": {
     "CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS": "1",
@@ -9,8 +53,24 @@
     "SUPABASE_ANON_KEY": "sb_publishable_HSS4nyz3z9H5dzMRJgtHog_pNiXp0At"
   },
   "hooks": {
-    "SessionStart": [{"type": "command", "command": "node scripts/claude-hook.js"}],
-    "PostToolUse": [{"type": "command", "command": "node scripts/claude-hook.js", "matcher": "Write|Edit|Bash"}],
-    "Stop": [{"type": "command", "command": "node scripts/claude-hook.js"}]
+    "SessionStart": [
+      {
+        "type": "command",
+        "command": "node scripts/claude-hook.js"
+      }
+    ],
+    "PostToolUse": [
+      {
+        "type": "command",
+        "command": "node scripts/claude-hook.js",
+        "toolNames": ["Write", "Edit", "Bash"]
+      }
+    ],
+    "Stop": [
+      {
+        "type": "command",
+        "command": "node scripts/claude-hook.js"
+      }
+    ]
   }
 }

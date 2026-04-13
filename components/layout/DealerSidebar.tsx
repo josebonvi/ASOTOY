@@ -19,6 +19,8 @@ import {
   Lock,
   Menu,
   X,
+  GitBranch,
+  AlertCircle,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -127,6 +129,33 @@ export default function DealerSidebar({
             <span>Inicio</span>
           </Link>
 
+          {/* Organigrama */}
+          <Link
+            href="/organigrama"
+            className={cn(
+              "flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors",
+              pathname === "/organigrama"
+                ? "bg-primary/15 text-primary border border-primary/20"
+                : progreso.organigrama
+                  ? "text-success"
+                  : "text-muted-foreground hover:text-foreground hover:bg-accent"
+            )}
+          >
+            <div className="relative">
+              {progreso.organigrama ? (
+                <Check size={16} />
+              ) : (
+                <GitBranch size={16} />
+              )}
+            </div>
+            <span className="flex-1 truncate">Organigrama</span>
+            {progreso.organigrama ? (
+              <Check size={14} className="text-success" />
+            ) : (
+              <AlertCircle size={14} className="text-warning" />
+            )}
+          </Link>
+
           {/* Separator */}
           <div className="mt-3 mb-2 px-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
             Formulario
@@ -191,13 +220,13 @@ export default function DealerSidebar({
             <div className="flex items-center justify-between text-xs text-muted-foreground mb-2">
               <span>Progreso</span>
               <span className="font-semibold text-foreground">
-                {completedCount}/5
+                {completedCount}/6
               </span>
             </div>
             <div className="h-1.5 bg-muted rounded-full overflow-hidden">
               <div
                 className="h-full bg-primary rounded-full transition-all duration-500"
-                style={{ width: `${(completedCount / 5) * 100}%` }}
+                style={{ width: `${(completedCount / 6) * 100}%` }}
               />
             </div>
           </div>

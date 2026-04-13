@@ -10,6 +10,13 @@ import { SaveIndicator } from "@/components/shared/SaveIndicator";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { ArrowRight } from "lucide-react";
 
 interface SeccionNecesidadesProps {
@@ -163,20 +170,22 @@ export default function SeccionNecesidades({
           <p className="text-xs text-muted-foreground">
             Programa de formación en alianza con la USM
           </p>
-          <select
-            value={interesCollege}
-            onChange={(e) => setInteresCollege(e.target.value)}
+          <Select
+            value={interesCollege || null}
+            onValueChange={(v) => setInteresCollege(v ?? "")}
             disabled={readOnly}
-            title="Interés en ASOTOY College"
-            className="w-full max-w-xs bg-input border border-border rounded-md px-3 py-2 text-sm text-foreground"
           >
-            <option value="">Seleccionar...</option>
-            {INTERES_COLLEGE.map((o) => (
-              <option key={o.value} value={o.value}>
-                {o.label}
-              </option>
-            ))}
-          </select>
+            <SelectTrigger className="w-full max-w-xs">
+              <SelectValue placeholder="Seleccionar..." />
+            </SelectTrigger>
+            <SelectContent>
+              {INTERES_COLLEGE.map((o) => (
+                <SelectItem key={o.value} value={o.value}>
+                  {o.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
 
         <div className="space-y-2">

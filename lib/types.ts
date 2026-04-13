@@ -8,6 +8,7 @@ export interface UserRole {
 }
 
 export interface FormularioProgreso {
+  organigrama: boolean;
   seccion1: boolean;
   seccion2: boolean;
   seccion3: boolean;
@@ -16,6 +17,8 @@ export interface FormularioProgreso {
 }
 
 export type FormularioEstado = "pendiente" | "en_progreso" | "completado";
+
+export type OrganigramaEstado = "no_iniciado" | "pendiente" | "en_revision" | "aprobado";
 
 export interface Concesionario {
   id: string;
@@ -30,6 +33,7 @@ export interface Concesionario {
   responsable_email: string | null;
   responsable_telefono: string | null;
   user_id: string | null;
+  organigrama_estado: OrganigramaEstado;
   formulario_estado: FormularioEstado;
   formulario_progreso: FormularioProgreso;
   created_at: string;
@@ -53,6 +57,7 @@ export type NivelToyota =
   | "asesor_tecnico"
   | "jefe_taller"
   | "analista_garantia"
+  | "ayudante"
   | "no_aplica";
 
 export interface Cargo {
@@ -67,6 +72,9 @@ export interface Cargo {
   es_cargo_rotacion: boolean;
   motivo_rotacion: string | null;
   dificultad_cubrir: number | null;
+  organigrama_cargo_id: string | null;
+  nombre_cargo_dealer: string | null;
+  pre_populated: boolean;
   created_at: string;
 }
 
@@ -204,4 +212,70 @@ export interface Seccion5Form {
   formacion_necesaria: string;
   interes_asotoy_college: InteresCollege;
   comentarios_adicionales: string;
+}
+
+// ===== Organigrama DB row types =====
+
+export interface CatalogoToyota {
+  id: string;
+  value: string;
+  label: string;
+  categoria: string;
+  nivel_toyota_default: string | null;
+  orden: number;
+  activo: boolean;
+  created_at: string;
+}
+
+export interface Organigrama {
+  id: string;
+  concesionario_id: string;
+  tipo: "upload" | "builder" | "legacy";
+  estado: "pendiente" | "en_revision" | "aprobado" | "rechazado";
+  archivo_url: string | null;
+  archivo_nombre: string | null;
+  archivo_tipo: string | null;
+  notas_concesionario: string | null;
+  notas_admin: string | null;
+  aprobado_por: string | null;
+  aprobado_at: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface OrganigramaCargo {
+  id: string;
+  organigrama_id: string;
+  concesionario_id: string;
+  nombre_cargo_dealer: string;
+  departamento: string | null;
+  num_personas: number;
+  orden: number;
+  created_at: string;
+}
+
+export interface OrganigramaMapping {
+  id: string;
+  organigrama_cargo_id: string;
+  catalogo_toyota_id: string | null;
+  nombre_cargo_estandar: string | null;
+  nivel_toyota_sugerido: string | null;
+  confianza_match: number | null;
+  es_auto_match: boolean;
+  confirmado_por_admin: boolean;
+  created_at: string;
+}
+
+// ===== Organigrama form input types =====
+
+export interface OrganigramaCargoInput {
+  nombre_cargo_dealer: string;
+  departamento: string;
+  num_personas: number;
+  orden: number;
+}
+
+export interface OrganigramaDepartamento {
+  nombre: string;
+  cargos: OrganigramaCargoInput[];
 }

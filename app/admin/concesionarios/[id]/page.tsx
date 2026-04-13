@@ -1,7 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Network, FileUp, Wrench } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { getNivelToyotaLabel } from "@/lib/constants";
 
@@ -27,13 +27,18 @@ export default async function ConcesionarioDetallePage({
     { data: rangos },
     { data: perfiles },
     { data: necesidades },
+    { data: organigramaData },
   ] = await Promise.all([
     supabase.from("areas").select("*").eq("concesionario_id", id),
     supabase.from("cargos").select("*").eq("concesionario_id", id),
     supabase.from("rangos_salariales").select("*").eq("concesionario_id", id),
     supabase.from("perfiles_talento").select("*").eq("concesionario_id", id),
     supabase.from("necesidades").select("*").eq("concesionario_id", id),
+    supabase.from("organigramas").select("id, tipo, estado, archivo_nombre, created_at").eq("concesionario_id", id).order("created_at", { ascending: false }).limit(1),
   ]);
+
+  const organigrama = organigramaData?.[0] ?? null;
+  const orgEstado = concesionario.organigrama_estado ?? "no_iniciado";
 
   return (
     <div className="max-w-4xl">
@@ -48,6 +53,51 @@ export default async function ConcesionarioDetallePage({
       <p className="text-sm text-muted-foreground mb-6">
         {concesionario.zona} — {concesionario.estado}
       </p>
+
+      {/* Organigrama */}
+      <section className="rounded-xl bg-card border border-border p-6 mb-4">
+        <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground mb-4 flex items-center gap-2">
+          <Network size={14} />
+          Organigrama
+        </h2>
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <span
+              className={`text-xs font-medium px-2 py-1 rounded ${
+                orgEstado === "aprobado"
+                  ? "bg-success/10 text-success"
+                  : orgEstado === "pendiente" || orgEstado === "en_revision"
+                    ? "bg-warning/10 text-warning"
+                    : "bg-muted text-muted-foreground"
+              }`}
+            >
+              {orgEstado === "aprobado"
+                ? "Aprobado"
+                : orgEstado === "pendiente"
+                  ? "Pendiente"
+                  : orgEstado === "en_revision"
+                    ? "En revisión"
+                    : "No enviado"}
+            </span>
+            {organigrama && (
+              <span className="text-xs text-muted-foreground flex items-center gap-1">
+                {organigrama.tipo === "upload" ? (
+                  <><FileUp size={12} /> {organigrama.archivo_nombre}</>
+                ) : (
+                  <><Wrench size={12} /> Construido en builder</>
+                )}
+              </span>
+            )}
+          </div>
+          {organigrama && (
+            <Link href={`/admin/organigramas/${organigrama.id}`}>
+              <Button variant="outline" size="sm" className="text-xs">
+                {orgEstado === "aprobado" ? "Ver mapeo" : "Procesar"}
+              </Button>
+            </Link>
+          )}
+        </div>
+      </section>
 
       {/* Seccion 1 */}
       <section className="rounded-xl bg-card border border-border p-6 mb-4">
@@ -96,7 +146,8 @@ export default async function ConcesionarioDetallePage({
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-border">
-                  <th className="text-left py-2 text-muted-foreground font-medium">Cargo</th>
+                  <th className="text-left py-2 text-muted-foreground font-medium">Cargo estándar</th>
+                  <th className="text-left py-2 text-muted-foreground font-medium">Nombre interno</th>
                   <th className="text-left py-2 text-muted-foreground font-medium">Área</th>
                   <th className="text-left py-2 text-muted-foreground font-medium">Nivel Toyota</th>
                   <th className="text-left py-2 text-muted-foreground font-medium">Personas</th>
@@ -107,6 +158,7 @@ export default async function ConcesionarioDetallePage({
                 {cargos.map((c) => (
                   <tr key={c.id} className="border-b border-border last:border-0">
                     <td className="py-2">{c.nombre_cargo}</td>
+                    <td className="py-2 text-muted-foreground text-xs">{c.nombre_cargo_dealer ?? "—"}</td>
                     <td className="py-2 text-muted-foreground">{c.area ?? "—"}</td>
                     <td className="py-2 text-muted-foreground">{getNivelToyotaLabel(c.nivel_toyota)}</td>
                     <td className="py-2">{c.num_personas ?? "—"}</td>

@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { useAutoSave } from "@/hooks/useAutoSave";
 import { useFormProgress } from "@/hooks/useFormProgress";
-import { MONEDAS, TIPOS_PAGO, FRECUENCIA_REVISION, CARGOS_MECANICA } from "@/lib/constants";
+import { MONEDAS, TIPOS_PAGO, FRECUENCIA_REVISION } from "@/lib/constants";
 import type { Cargo } from "@/lib/types";
 import { DynamicTable, type ColumnConfig } from "@/components/forms/DynamicTable";
 import { SaveIndicator } from "@/components/shared/SaveIndicator";
@@ -13,6 +13,13 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Button } from "@/components/ui/button";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { ArrowRight, AlertTriangle } from "lucide-react";
 
 const rangoColumns: ColumnConfig[] = [
@@ -73,15 +80,8 @@ export default function SeccionRemuneracion({
   // Load existing data
   useEffect(() => {
     async function loadData() {
-      // Filter to only show taller/mecánica positions
-      const cargosMecanicaValues: Set<string> = new Set(CARGOS_MECANICA.map(c => c.value));
-      const cargosMecanicaLabels: Set<string> = new Set(CARGOS_MECANICA.map(c => c.label));
-      const tallerCargos = cargos.filter(c =>
-        c.area === 'Taller Mecánico' ||
-        c.area === 'Posventa / Servicio' ||
-        cargosMecanicaValues.has(c.nombre_cargo) ||
-        cargosMecanicaLabels.has(c.nombre_cargo)
-      );
+      // Use all cargos for this concesionario (no longer filtered by CARGOS_MECANICA)
+      const tallerCargos = cargos;
 
       const { data: existingRangos } = await supabase
         .from("rangos_salariales")
@@ -96,7 +96,9 @@ export default function SeccionRemuneracion({
             );
             return {
               cargo_id: cargo.id,
-              cargo_nombre: cargo.nombre_cargo,
+              cargo_nombre: cargo.nombre_cargo_dealer
+                ? `${cargo.nombre_cargo} (${cargo.nombre_cargo_dealer})`
+                : cargo.nombre_cargo,
               salario_min: existing?.salario_min ?? null,
               salario_max: existing?.salario_max ?? null,
               tipo_pago: existing?.tipo_pago ?? "",
@@ -223,19 +225,22 @@ export default function SeccionRemuneracion({
       <div className="rounded-xl bg-card border border-border p-6">
         <div className="space-y-2">
           <Label>Moneda principal de pago</Label>
-          <select
+          <Select
             value={monedaPrincipal}
-            onChange={(e) => setMonedaPrincipal(e.target.value)}
+            onValueChange={(v) => setMonedaPrincipal(v ?? "USD")}
             disabled={readOnly}
-            title="Moneda principal"
-            className="w-full max-w-xs bg-input border border-border rounded-md px-3 py-2 text-sm text-foreground"
           >
-            {MONEDAS.map((m) => (
-              <option key={m.value} value={m.value}>
-                {m.label}
-              </option>
-            ))}
-          </select>
+            <SelectTrigger className="w-full max-w-xs">
+              <SelectValue placeholder="Seleccionar moneda..." />
+            </SelectTrigger>
+            <SelectContent>
+              {MONEDAS.map((m) => (
+                <SelectItem key={m.value} value={m.value}>
+                  {m.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
       </div>
 
@@ -299,20 +304,22 @@ export default function SeccionRemuneracion({
       <div className="rounded-xl bg-card border border-border p-6">
         <div className="space-y-2">
           <Label>Frecuencia de revisión salarial</Label>
-          <select
-            value={frecuenciaRevision}
-            onChange={(e) => setFrecuenciaRevision(e.target.value)}
+          <Select
+            value={frecuenciaRevision || null}
+            onValueChange={(v) => setFrecuenciaRevision(v ?? "")}
             disabled={readOnly}
-            title="Frecuencia de revisión salarial"
-            className="w-full max-w-xs bg-input border border-border rounded-md px-3 py-2 text-sm text-foreground"
           >
-            <option value="">Seleccionar...</option>
-            {FRECUENCIA_REVISION.map((f) => (
-              <option key={f.value} value={f.value}>
-                {f.label}
-              </option>
-            ))}
-          </select>
+            <SelectTrigger className="w-full max-w-xs">
+              <SelectValue placeholder="Seleccionar..." />
+            </SelectTrigger>
+            <SelectContent>
+              {FRECUENCIA_REVISION.map((f) => (
+                <SelectItem key={f.value} value={f.value}>
+                  {f.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
       </div>
 

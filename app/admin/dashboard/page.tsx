@@ -1,13 +1,21 @@
 import { createClient } from "@/lib/supabase/server";
-import { Building2, CheckCircle2, Clock, AlertCircle } from "lucide-react";
+import { Building2, CheckCircle2, Clock, AlertCircle, Network, FileCheck } from "lucide-react";
+import Link from "next/link";
 
 export default async function AdminDashboard() {
   const supabase = await createClient();
 
-  const { data: concesionarios } = await supabase
-    .from("concesionarios")
-    .select("id, nombre, zona, estado, formulario_estado, formulario_progreso, updated_at")
-    .order("updated_at", { ascending: false });
+  const [{ data: concesionarios }, { data: organigramas }] = await Promise.all([
+    supabase
+      .from("concesionarios")
+      .select("id, nombre, zona, estado, formulario_estado, formulario_progreso, organigrama_estado, updated_at")
+      .order("updated_at", { ascending: false }),
+    supabase
+      .from("organigramas")
+      .select("id, concesionario_id, tipo, estado, created_at, concesionario:concesionarios(nombre)")
+      .order("created_at", { ascending: false })
+      .limit(10),
+  ]);
 
   const total = concesionarios?.length ?? 0;
   const completados =
@@ -16,6 +24,10 @@ export default async function AdminDashboard() {
     concesionarios?.filter((c) => c.formulario_estado === "en_progreso").length ?? 0;
   const pendientes =
     concesionarios?.filter((c) => c.formulario_estado === "pendiente").length ?? 0;
+
+  // Organigrama stats
+  const orgPendientes = organigramas?.filter((o) => o.estado === "pendiente").length ?? 0;
+  const orgAprobados = organigramas?.filter((o) => o.estado === "aprobado").length ?? 0;
 
   const kpis = [
     {
@@ -37,10 +49,10 @@ export default async function AdminDashboard() {
       color: "text-warning",
     },
     {
-      label: "Pendientes",
-      value: pendientes,
-      icon: AlertCircle,
-      color: "text-muted-foreground",
+      label: "Organigramas pendientes",
+      value: orgPendientes,
+      icon: Network,
+      color: orgPendientes > 0 ? "text-warning" : "text-muted-foreground",
     },
   ];
 
@@ -103,6 +115,52 @@ export default async function AdminDashboard() {
           </span>
         </div>
       </div>
+
+      {/* Organigramas pendientes */}
+      {orgPendientes > 0 && (
+        <div className="rounded-xl p-6 bg-card border border-warning/30 mb-8">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-sm font-semibold flex items-center gap-2">
+              <Network size={16} className="text-warning" />
+              Organigramas por revisar
+            </h3>
+            <Link
+              href="/admin/organigramas"
+              className="text-xs text-primary hover:underline"
+            >
+              Ver todos
+            </Link>
+          </div>
+          <div className="flex flex-col gap-3">
+            {organigramas
+              ?.filter((o) => o.estado === "pendiente")
+              .slice(0, 5)
+              .map((o) => {
+                const conc = o.concesionario as unknown as { nombre: string } | null;
+                return (
+                  <Link
+                    key={o.id}
+                    href={`/admin/organigramas/${o.id}`}
+                    className="flex items-center justify-between py-2 border-b border-border last:border-0 hover:bg-accent/50 -mx-2 px-2 rounded transition-colors"
+                  >
+                    <div>
+                      <p className="text-sm font-medium">
+                        {conc?.nombre ?? "Concesionario"}
+                      </p>
+                      <p className="text-xs text-muted-foreground">
+                        {o.tipo === "upload" ? "Archivo subido" : "Builder"} —{" "}
+                        {new Date(o.created_at).toLocaleDateString("es-VE")}
+                      </p>
+                    </div>
+                    <span className="text-xs font-medium px-2 py-1 rounded bg-warning/10 text-warning">
+                      Pendiente
+                    </span>
+                  </Link>
+                );
+              })}
+          </div>
+        </div>
+      )}
 
       {/* Recent activity */}
       <div className="rounded-xl p-6 bg-card border border-border">

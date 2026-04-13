@@ -14,6 +14,13 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Button } from "@/components/ui/button";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { ArrowRight } from "lucide-react";
 
 const areaColumns: ColumnConfig[] = [
@@ -163,21 +170,22 @@ export default function SeccionDatos({
           </div>
           <div className="space-y-2">
             <Label htmlFor="estado">Estado *</Label>
-            <select
-              id="estado"
-              value={estado}
-              onChange={(e) => setEstado(e.target.value)}
+            <Select
+              value={estado || null}
+              onValueChange={(v) => setEstado(v ?? "")}
               disabled={readOnly}
-              title="Estado"
-              className="w-full bg-input border border-border rounded-md px-3 py-2 text-sm text-foreground"
             >
-              <option value="">Seleccionar estado...</option>
-              {ESTADOS_VENEZUELA.map((e) => (
-                <option key={e} value={e}>
-                  {e}
-                </option>
-              ))}
-            </select>
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder="Seleccionar estado..." />
+              </SelectTrigger>
+              <SelectContent>
+                {ESTADOS_VENEZUELA.map((e) => (
+                  <SelectItem key={e} value={e}>
+                    {e}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
           <div className="space-y-2">
             <Label htmlFor="ciudad">Ciudad</Label>

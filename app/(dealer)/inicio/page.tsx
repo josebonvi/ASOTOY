@@ -12,8 +12,12 @@ import {
   Check,
   Lock,
   ArrowRight,
+  GitBranch,
+  Clock,
+  AlertCircle,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import type { OrganigramaEstado } from "@/lib/types";
 
 const iconMap: Record<string, React.ElementType> = {
   Building2,
@@ -40,6 +44,7 @@ export default async function DealerDashboard() {
   if (!concesionario) redirect("/login");
 
   const progreso = (concesionario.formulario_progreso as FormularioProgreso) ?? {
+    organigrama: false,
     seccion1: false,
     seccion2: false,
     seccion3: false,
@@ -47,8 +52,10 @@ export default async function DealerDashboard() {
     seccion5: false,
   };
 
+  const orgEstado = (concesionario.organigrama_estado as OrganigramaEstado) ?? "no_iniciado";
+
   const completedCount = Object.values(progreso).filter(Boolean).length;
-  const progressPercent = Math.round((completedCount / 5) * 100);
+  const progressPercent = Math.round((completedCount / 6) * 100);
 
   // Find next incomplete section
   const nextSection = FORMULARIO_SECCIONES.find((s) => !progreso[s.key]);
@@ -82,7 +89,7 @@ export default async function DealerDashboard() {
             >
               {completedCount === 0
                 ? "Comenzar formulario"
-                : completedCount === 5
+                : completedCount === 6
                   ? "Ver confirmación"
                   : "Continuar donde te quedaste"}
               <ArrowRight size={16} className="ml-2" />
@@ -112,10 +119,15 @@ export default async function DealerDashboard() {
           <p className="text-3xl font-bold text-foreground">
             {completedCount}{" "}
             <span className="text-base text-muted-foreground font-normal">
-              / 5
+              / 6
             </span>
           </p>
           <div className="flex gap-1.5 mt-2">
+            <div
+              className={`h-1.5 flex-1 rounded-full ${
+                progreso.organigrama ? "bg-success" : "bg-muted"
+              }`}
+            />
             {[1, 2, 3, 4, 5].map((i) => (
               <div
                 key={i}
@@ -157,6 +169,72 @@ export default async function DealerDashboard() {
         </div>
       </div>
 
+      {/* Organigrama card (Step 0) */}
+      <div className="rounded-xl bg-card border border-primary/20 p-4 sm:p-6 mb-4">
+        <div className="flex items-center gap-3 sm:gap-4">
+          <div
+            className={`flex items-center justify-center w-10 h-10 rounded-lg ${
+              orgEstado === "aprobado"
+                ? "bg-success/15 text-success"
+                : orgEstado === "no_iniciado"
+                  ? "bg-destructive/15 text-destructive"
+                  : "bg-primary/10 text-primary"
+            }`}
+          >
+            {orgEstado === "aprobado" ? (
+              <Check size={18} />
+            ) : (
+              <GitBranch size={18} />
+            )}
+          </div>
+          <div className="flex-1">
+            <p className="text-sm font-medium">Organigrama</p>
+            {orgEstado === "no_iniciado" && (
+              <>
+                <span className="inline-flex items-center gap-1 text-xs font-medium text-destructive bg-destructive/10 px-2 py-0.5 rounded mt-1">
+                  <AlertCircle size={12} />
+                  No enviado
+                </span>
+                <Link href="/organigrama" className="block mt-2">
+                  <Button size="sm" variant="default" className="text-xs">
+                    Enviar organigrama
+                    <ArrowRight size={14} className="ml-1.5" />
+                  </Button>
+                </Link>
+              </>
+            )}
+            {orgEstado === "pendiente" && (
+              <>
+                <span className="inline-flex items-center gap-1 text-xs font-medium text-yellow-500 bg-yellow-500/10 px-2 py-0.5 rounded mt-1">
+                  <Clock size={12} />
+                  Pendiente de revisión
+                </span>
+                <p className="text-xs text-muted-foreground mt-1">
+                  Nuestro equipo está procesando su organigrama
+                </p>
+              </>
+            )}
+            {orgEstado === "en_revision" && (
+              <>
+                <span className="inline-flex items-center gap-1 text-xs font-medium text-blue-500 bg-blue-500/10 px-2 py-0.5 rounded mt-1">
+                  <Clock size={12} />
+                  En revisión
+                </span>
+                <p className="text-xs text-muted-foreground mt-1">
+                  Nuestro equipo está procesando su organigrama
+                </p>
+              </>
+            )}
+            {orgEstado === "aprobado" && (
+              <span className="inline-flex items-center gap-1 text-xs font-medium text-success bg-success/10 px-2 py-0.5 rounded mt-1">
+                <Check size={12} />
+                Aprobado
+              </span>
+            )}
+          </div>
+        </div>
+      </div>
+
       {/* Section list */}
       <div className="rounded-xl bg-card border border-border p-4 sm:p-6">
         <h3 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground mb-4">
@@ -167,7 +245,9 @@ export default async function DealerDashboard() {
             const Icon = iconMap[seccion.icono] || Target;
             const isCompleted = progreso[seccion.key];
             const isBlocked =
-              seccion.requiere && !progreso[seccion.requiere];
+              seccion.requiere === "organigrama"
+                ? orgEstado !== "aprobado"
+                : seccion.requiere && !progreso[seccion.requiere];
 
             return (
               <Link
@@ -209,7 +289,9 @@ export default async function DealerDashboard() {
                   </p>
                   {isBlocked && (
                     <p className="text-xs text-muted-foreground">
-                      Complete primero la Sección 2
+                      {seccion.requiere === "organigrama"
+                        ? "Requiere organigrama aprobado"
+                        : "Complete primero la Sección 2"}
                     </p>
                   )}
                 </div>

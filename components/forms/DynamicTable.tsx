@@ -3,6 +3,13 @@
 import { Plus, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { AnimatePresence, motion } from "framer-motion";
 
 export interface ColumnConfig {
@@ -91,28 +98,25 @@ export function DynamicTable({
                           {String(row[col.key] ?? "")}
                         </span>
                       ) : col.type === "select" ? (
-                        <select
-                          value={String(row[col.key] ?? "")}
-                          onChange={(e) =>
-                            updateRow(index, col.key, e.target.value)
+                        <Select
+                          value={String(row[col.key] ?? "") || null}
+                          onValueChange={(v) =>
+                            updateRow(index, col.key, v ?? "")
                           }
-                          title={col.label}
-                          aria-label={col.label}
-                          className="w-full bg-input border border-border rounded-md px-2 py-1.5 text-sm text-foreground"
                         >
-                          <option value="">Seleccionar...</option>
-                          {col.options?.map((opt) =>
-                            opt.value.startsWith("__header_") ? (
-                              <option key={opt.value} disabled className="font-semibold text-muted-foreground">
-                                {opt.label}
-                              </option>
-                            ) : (
-                              <option key={opt.value} value={opt.value}>
-                                {opt.label}
-                              </option>
-                            )
-                          )}
-                        </select>
+                          <SelectTrigger className="w-full h-8" size="sm">
+                            <SelectValue placeholder="Seleccionar..." />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {col.options
+                              ?.filter((opt) => !opt.value.startsWith("__header_"))
+                              .map((opt) => (
+                                <SelectItem key={opt.value} value={opt.value}>
+                                  {opt.label}
+                                </SelectItem>
+                              ))}
+                          </SelectContent>
+                        </Select>
                       ) : col.type === "toggle" ? (
                         <input
                           type="checkbox"
@@ -206,22 +210,23 @@ export function DynamicTable({
                   {col.readOnly ? (
                     <span className="text-sm">{String(row[col.key] ?? "")}</span>
                   ) : col.type === "select" ? (
-                    <select
-                      value={String(row[col.key] ?? "")}
-                      onChange={(e) =>
-                        updateRow(index, col.key, e.target.value)
+                    <Select
+                      value={String(row[col.key] ?? "") || null}
+                      onValueChange={(v) =>
+                        updateRow(index, col.key, v ?? "")
                       }
-                      title={col.label}
-                      aria-label={col.label}
-                      className="w-full bg-input border border-border rounded-md px-3 py-2 text-sm text-foreground"
                     >
-                      <option value="">Seleccionar...</option>
-                      {col.options?.map((opt) => (
-                        <option key={opt.value} value={opt.value}>
-                          {opt.label}
-                        </option>
-                      ))}
-                    </select>
+                      <SelectTrigger className="w-full">
+                        <SelectValue placeholder="Seleccionar..." />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {col.options?.map((opt) => (
+                          <SelectItem key={opt.value} value={opt.value}>
+                            {opt.label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                   ) : col.type === "toggle" ? (
                     <input
                       type="checkbox"

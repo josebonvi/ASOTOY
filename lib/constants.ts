@@ -7,6 +7,14 @@ export const NIVELES_TOYOTA = [
   { value: "no_aplica", label: "No aplica", equivalencia: "Cargos administrativos del taller" },
 ] as const;
 
+export const ORGANIGRAMA_ESTADOS = [
+  { value: "no_iniciado", label: "No iniciado", color: "text-muted-foreground" },
+  { value: "pendiente", label: "Enviado — Pendiente de revisión", color: "text-yellow-500" },
+  { value: "en_revision", label: "En revisión", color: "text-blue-500" },
+  { value: "aprobado", label: "Aprobado", color: "text-green-500" },
+] as const;
+
+/** @deprecated Use catalogo_toyota table instead. Kept as fallback for dealers without approved organigrama. */
 export const CARGOS_MECANICA = [
   // Técnicos
   { value: "ayudante_mecanica", label: "Ayudante de Mecánica", categoria: "tecnico" },
@@ -125,7 +133,7 @@ export const FORMULARIO_SECCIONES = [
     key: "seccion2" as const,
     titulo: "Clasificación de Cargos",
     icono: "Users",
-    requiere: null,
+    requiere: "organigrama" as const,
   },
   {
     id: 3,

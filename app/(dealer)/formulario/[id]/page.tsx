@@ -1,7 +1,7 @@
 import { redirect, notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { FORMULARIO_SECCIONES } from "@/lib/constants";
-import type { FormularioProgreso } from "@/lib/types";
+import type { FormularioProgreso, OrganigramaEstado } from "@/lib/types";
 import SeccionDatos from "@/components/forms/SeccionDatos";
 import SeccionCargos from "@/components/forms/SeccionCargos";
 import SeccionRemuneracion from "@/components/forms/SeccionRemuneracion";
@@ -38,6 +38,7 @@ export default async function FormularioSeccionPage({
 
   const progreso =
     (concesionario.formulario_progreso as FormularioProgreso) ?? {
+      organigrama: false,
       seccion1: false,
       seccion2: false,
       seccion3: false,
@@ -45,12 +46,20 @@ export default async function FormularioSeccionPage({
       seccion5: false,
     };
 
-  // Check if section is blocked (sections 3 & 4 require section 2)
+  const orgEstado = (concesionario.organigrama_estado as OrganigramaEstado) ?? "no_iniciado";
+
+  // Check if section is blocked (section 2 requires approved organigrama; sections 3 & 4 require section 2)
   const seccionConfig = FORMULARIO_SECCIONES.find((s) => s.id === seccionId) as
-    | (typeof FORMULARIO_SECCIONES)[number] & { requiere?: keyof FormularioProgreso }
+    | (typeof FORMULARIO_SECCIONES)[number] & { requiere?: string }
     | undefined;
-  if (seccionConfig?.requiere && !progreso[seccionConfig.requiere]) {
-    redirect("/inicio");
+  if (seccionConfig?.requiere) {
+    if (seccionConfig.requiere === "organigrama") {
+      if (orgEstado !== "aprobado") {
+        redirect("/organigrama");
+      }
+    } else if (!progreso[seccionConfig.requiere as keyof FormularioProgreso]) {
+      redirect("/inicio");
+    }
   }
 
   // Fetch section-specific data
@@ -77,6 +86,7 @@ export default async function FormularioSeccionPage({
         concesionarioId={concesionario.id}
         cargos={cargos ?? []}
         areas={areas ?? []}
+        organigramaAprobado={orgEstado === "aprobado"}
         readOnly={isCompleted}
       />
     ),
