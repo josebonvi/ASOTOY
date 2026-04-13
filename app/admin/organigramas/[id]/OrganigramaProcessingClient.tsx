@@ -400,21 +400,17 @@ export default function OrganigramaProcessingClient({
         .eq("concesionario_id", concesionarioId);
       if (delError) throw delError;
 
-      // d. Insert new cargos from confirmed mappings
+      // d. Insert new cargos from confirmed mappings (include unmapped cargos too)
       const newCargos = orgCargos
-        .filter(
-          (c) =>
-            mappings[c.id]?.confirmado &&
-            mappings[c.id]?.catalogoToyotaId
-        )
+        .filter((c) => mappings[c.id]?.confirmado)
         .map((c) => {
           const m = mappings[c.id];
           return {
             concesionario_id: concesionarioId,
-            nombre_cargo: m.nombreCargoEstandar,
+            nombre_cargo: m.nombreCargoEstandar || c.nombre_cargo_dealer,
             nombre_cargo_dealer: c.nombre_cargo_dealer,
-            area: c.departamento,
-            nivel_toyota: m.nivelToyota,
+            area: c.departamento || "Taller Mecánico",
+            nivel_toyota: m.nivelToyota || "no_aplica",
             num_personas: c.num_personas,
             organigrama_cargo_id: c.id,
             pre_populated: true,
@@ -428,6 +424,34 @@ export default function OrganigramaProcessingClient({
           .insert(newCargos);
         if (insertError) throw insertError;
       }
+
+      // d2. Pre-fill Sección 1: áreas y num_empleados desde organigrama
+      const deptoMap = new Map<string, number>();
+      for (const c of orgCargos) {
+        const dept = c.departamento || "Taller Mecánico";
+        deptoMap.set(dept, (deptoMap.get(dept) || 0) + c.num_personas);
+      }
+      const totalEmpleados = orgCargos.reduce((s, c) => s + c.num_personas, 0);
+
+      // Delete existing areas and insert from organigrama
+      await supabase.from("areas").delete().eq("concesionario_id", concesionarioId);
+      const newAreas = Array.from(deptoMap.entries()).map(([nombre, personas]) => ({
+        concesionario_id: concesionarioId,
+        nombre_area: nombre,
+        num_personas: personas,
+      }));
+      if (newAreas.length > 0) {
+        await supabase.from("areas").insert(newAreas);
+      }
+
+      // Update concesionario with employee count and organigrama flag
+      await supabase
+        .from("concesionarios")
+        .update({
+          num_empleados: totalEmpleados,
+          tiene_organigrama: true,
+        })
+        .eq("id", concesionarioId);
 
       // e. Save all mappings as confirmed
       const finalMappings = orgCargos
@@ -462,9 +486,13 @@ export default function OrganigramaProcessingClient({
         const progreso =
           (concData.formulario_progreso as Record<string, boolean>) ?? {};
         progreso.organigrama = true;
+        progreso.seccion1 = true; // Pre-filled from organigrama data
         await supabase
           .from("concesionarios")
-          .update({ formulario_progreso: progreso })
+          .update({
+            formulario_progreso: progreso,
+            formulario_estado: "en_progreso",
+          })
           .eq("id", concesionarioId);
       }
 
