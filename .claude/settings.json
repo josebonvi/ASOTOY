@@ -1,0 +1,16 @@
+{
+  "permissions": {
+    "allow": ["Bash(*)", "Read(*)", "Write(*)", "Edit(*)", "MultiEdit(*)"]
+  },
+  "env": {
+    "CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS": "1",
+    "FLOWMANDO_PROJECT": "asotoy",
+    "SUPABASE_URL": "https://xzkasvcqvddmgybzajeu.supabase.co",
+    "SUPABASE_ANON_KEY": "sb_publishable_HSS4nyz3z9H5dzMRJgtHog_pNiXp0At"
+  },
+  "hooks": {
+    "SessionStart": [{"type": "command", "command": "node scripts/claude-hook.js"}],
+    "PostToolUse": [{"type": "command", "command": "node scripts/claude-hook.js", "matcher": "Write|Edit|Bash"}],
+    "Stop": [{"type": "command", "command": "node scripts/claude-hook.js"}]
+  }
+}
