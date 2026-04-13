@@ -80,8 +80,18 @@ export default function SeccionRemuneracion({
   // Load existing data
   useEffect(() => {
     async function loadData() {
-      // Use all cargos for this concesionario (no longer filtered by CARGOS_MECANICA)
-      const tallerCargos = cargos;
+      // Filter to only mecánica-related cargos
+      const isMecanicaArea = (area: string | null | undefined) => {
+        if (!area) return true;
+        const lower = area.toLowerCase();
+        return (
+          lower.includes("mecánica") ||
+          lower.includes("mecanica") ||
+          lower === "taller mecánico" ||
+          (lower.includes("servicio") && lower.includes("post"))
+        );
+      };
+      const tallerCargos = cargos.filter((c) => isMecanicaArea(c.area));
 
       const { data: existingRangos } = await supabase
         .from("rangos_salariales")
