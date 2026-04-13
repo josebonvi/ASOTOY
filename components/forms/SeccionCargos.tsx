@@ -281,12 +281,18 @@ export default function SeccionCargos({
 
   if (usePrePopulatedMode) {
     // Split cargos into mecanica vs other areas
-    const mecanicaCargos = prePopCargos.filter(
-      (c) => c.area === "Taller Mecánico" || !c.area
-    );
-    const otherCargos = prePopCargos.filter(
-      (c) => c.area && c.area !== "Taller Mecánico"
-    );
+    const isMecanicaArea = (area: string | undefined) => {
+      if (!area) return true;
+      const lower = area.toLowerCase();
+      return (
+        lower.includes("mecánica") ||
+        lower.includes("mecanica") ||
+        lower === "taller mecánico" ||
+        (lower.includes("servicio") && lower.includes("post"))
+      );
+    };
+    const mecanicaCargos = prePopCargos.filter((c) => isMecanicaArea(c.area));
+    const otherCargos = prePopCargos.filter((c) => !isMecanicaArea(c.area));
 
     // Map mecanica indexes back to prePopCargos indexes for updates
     const mecanicaIndexMap = mecanicaCargos.map((c) =>
