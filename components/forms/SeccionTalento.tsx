@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { useAutoSave } from "@/hooks/useAutoSave";
 import { useFormProgress } from "@/hooks/useFormProgress";
-import { EDUCACION_MINIMA } from "@/lib/constants";
+import { EDUCACION_MINIMA, CARGOS_MECANICA } from "@/lib/constants";
 import type { Cargo } from "@/lib/types";
 import { DynamicTable, type ColumnConfig } from "@/components/forms/DynamicTable";
 import { SaveIndicator } from "@/components/shared/SaveIndicator";
@@ -70,6 +70,16 @@ export default function SeccionTalento({
 
   useEffect(() => {
     async function loadData() {
+      // Filter to only show taller/mecánica positions
+      const cargosMecanicaValues: Set<string> = new Set(CARGOS_MECANICA.map(c => c.value));
+      const cargosMecanicaLabels: Set<string> = new Set(CARGOS_MECANICA.map(c => c.label));
+      const tallerCargos = cargos.filter(c =>
+        c.area === 'Taller Mecánico' ||
+        c.area === 'Posventa / Servicio' ||
+        cargosMecanicaValues.has(c.nombre_cargo) ||
+        cargosMecanicaLabels.has(c.nombre_cargo)
+      );
+
       const { data: existingPerfiles } = await supabase
         .from("perfiles_talento")
         .select("*")
@@ -77,7 +87,7 @@ export default function SeccionTalento({
 
       if (existingPerfiles && existingPerfiles.length > 0) {
         setPerfiles(
-          cargos.map((cargo) => {
+          tallerCargos.map((cargo) => {
             const existing = existingPerfiles.find(
               (p) => p.cargo_id === cargo.id
             );
@@ -101,7 +111,7 @@ export default function SeccionTalento({
           setHabilidadesFaltantes(withFaltantes.habilidades_faltantes);
       } else {
         setPerfiles(
-          cargos.map((cargo) => ({
+          tallerCargos.map((cargo) => ({
             cargo_id: cargo.id,
             cargo_nombre: cargo.nombre_cargo,
             educacion_minima: "",

@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { useAutoSave } from "@/hooks/useAutoSave";
 import { useFormProgress } from "@/hooks/useFormProgress";
-import { MONEDAS, TIPOS_PAGO, FRECUENCIA_REVISION } from "@/lib/constants";
+import { MONEDAS, TIPOS_PAGO, FRECUENCIA_REVISION, CARGOS_MECANICA } from "@/lib/constants";
 import type { Cargo } from "@/lib/types";
 import { DynamicTable, type ColumnConfig } from "@/components/forms/DynamicTable";
 import { SaveIndicator } from "@/components/shared/SaveIndicator";
@@ -73,6 +73,16 @@ export default function SeccionRemuneracion({
   // Load existing data
   useEffect(() => {
     async function loadData() {
+      // Filter to only show taller/mecánica positions
+      const cargosMecanicaValues: Set<string> = new Set(CARGOS_MECANICA.map(c => c.value));
+      const cargosMecanicaLabels: Set<string> = new Set(CARGOS_MECANICA.map(c => c.label));
+      const tallerCargos = cargos.filter(c =>
+        c.area === 'Taller Mecánico' ||
+        c.area === 'Posventa / Servicio' ||
+        cargosMecanicaValues.has(c.nombre_cargo) ||
+        cargosMecanicaLabels.has(c.nombre_cargo)
+      );
+
       const { data: existingRangos } = await supabase
         .from("rangos_salariales")
         .select("*")
@@ -80,7 +90,7 @@ export default function SeccionRemuneracion({
 
       if (existingRangos && existingRangos.length > 0) {
         setRangos(
-          cargos.map((cargo) => {
+          tallerCargos.map((cargo) => {
             const existing = existingRangos.find(
               (r) => r.cargo_id === cargo.id
             );
@@ -107,7 +117,7 @@ export default function SeccionRemuneracion({
       } else {
         // Pre-fill from cargos
         setRangos(
-          cargos.map((cargo) => ({
+          tallerCargos.map((cargo) => ({
             cargo_id: cargo.id,
             cargo_nombre: cargo.nombre_cargo,
             salario_min: null,
@@ -249,7 +259,7 @@ export default function SeccionRemuneracion({
       {/* Commissions & bonuses */}
       <div className="rounded-xl bg-card border border-border p-6 space-y-4">
         <div className="flex items-center justify-between">
-          <Label>¿Tienen comisiones para vendedores?</Label>
+          <Label>¿Tienen comisiones o incentivos para el personal del taller?</Label>
           <Switch
             checked={tieneComisiones}
             onCheckedChange={setTieneComisiones}

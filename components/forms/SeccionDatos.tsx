@@ -21,7 +21,7 @@ const areaColumns: ColumnConfig[] = [
     key: "nombre_area",
     label: "Nombre del área",
     type: "text",
-    placeholder: "Ej: Servicio, Ventas, Administración",
+    placeholder: "Ej: Taller Mecánica, Express, Recepción",
   },
   {
     key: "num_personas",
