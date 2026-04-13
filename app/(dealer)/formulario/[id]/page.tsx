@@ -73,6 +73,19 @@ export default async function FormularioSeccionPage({
     .select("*")
     .eq("concesionario_id", concesionario.id);
 
+  // Filter cargos for S3/S4: only mecánica-related areas
+  const allCargos = cargos ?? [];
+  const mecanicaCargos = allCargos.filter((c) => {
+    const area = (c.area ?? "").toLowerCase();
+    return (
+      !c.area ||
+      area.includes("mecánica") ||
+      area.includes("mecanica") ||
+      area === "taller mecánico" ||
+      (area.includes("servicio") && !area.includes("repuesto") && !area.includes("latonería") && !area.includes("pintura"))
+    );
+  });
+
   const sectionComponents: Record<number, React.ReactNode> = {
     1: (
       <SeccionDatos
@@ -84,7 +97,7 @@ export default async function FormularioSeccionPage({
     2: (
       <SeccionCargos
         concesionarioId={concesionario.id}
-        cargos={cargos ?? []}
+        cargos={allCargos}
         areas={areas ?? []}
         organigramaAprobado={orgEstado === "aprobado"}
         readOnly={isCompleted}
@@ -93,14 +106,14 @@ export default async function FormularioSeccionPage({
     3: (
       <SeccionRemuneracion
         concesionarioId={concesionario.id}
-        cargos={cargos ?? []}
+        cargos={mecanicaCargos}
         readOnly={isCompleted}
       />
     ),
     4: (
       <SeccionTalento
         concesionarioId={concesionario.id}
-        cargos={cargos ?? []}
+        cargos={mecanicaCargos}
         readOnly={isCompleted}
       />
     ),
