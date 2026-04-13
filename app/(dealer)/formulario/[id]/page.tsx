@@ -1,6 +1,6 @@
 import { redirect, notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import { FORMULARIO_SECCIONES } from "@/lib/constants";
+import { FORMULARIO_SECCIONES, CONCESIONARIOS_SOLO_MECANICA } from "@/lib/constants";
 import type { FormularioProgreso, OrganigramaEstado } from "@/lib/types";
 import SeccionDatos from "@/components/forms/SeccionDatos";
 import SeccionCargos from "@/components/forms/SeccionCargos";
@@ -73,18 +73,25 @@ export default async function FormularioSeccionPage({
     .select("*")
     .eq("concesionario_id", concesionario.id);
 
-  // Filter cargos for S3/S4: only mecánica-related areas
+  // Determine if this concesionario only fills detailed questions for mecánica
+  const nombreLower = (concesionario.nombre ?? "").toLowerCase();
+  const soloMecanica = CONCESIONARIOS_SOLO_MECANICA.some((n) => nombreLower === n);
+
   const allCargos = cargos ?? [];
-  const mecanicaCargos = allCargos.filter((c) => {
-    const area = (c.area ?? "").toLowerCase();
-    return (
-      !c.area ||
-      area.includes("mecánica") ||
-      area.includes("mecanica") ||
-      area === "taller mecánico" ||
-      (area.includes("servicio") && !area.includes("repuesto") && !area.includes("latonería") && !area.includes("pintura"))
-    );
-  });
+
+  // Filter cargos for S3/S4: only mecánica-related areas (when applicable)
+  const cargosParaPreguntas = soloMecanica
+    ? allCargos.filter((c) => {
+        const area = (c.area ?? "").toLowerCase();
+        return (
+          !c.area ||
+          area.includes("mecánica") ||
+          area.includes("mecanica") ||
+          area === "taller mecánico" ||
+          (area.includes("servicio") && !area.includes("repuesto") && !area.includes("latonería") && !area.includes("pintura"))
+        );
+      })
+    : allCargos;
 
   const sectionComponents: Record<number, React.ReactNode> = {
     1: (
@@ -100,20 +107,23 @@ export default async function FormularioSeccionPage({
         cargos={allCargos}
         areas={areas ?? []}
         organigramaAprobado={orgEstado === "aprobado"}
+        soloMecanica={soloMecanica}
         readOnly={isCompleted}
       />
     ),
     3: (
       <SeccionRemuneracion
         concesionarioId={concesionario.id}
-        cargos={mecanicaCargos}
+        cargos={cargosParaPreguntas}
+        soloMecanica={soloMecanica}
         readOnly={isCompleted}
       />
     ),
     4: (
       <SeccionTalento
         concesionarioId={concesionario.id}
-        cargos={mecanicaCargos}
+        cargos={cargosParaPreguntas}
+        soloMecanica={soloMecanica}
         readOnly={isCompleted}
       />
     ),

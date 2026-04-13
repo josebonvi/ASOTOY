@@ -164,6 +164,9 @@ export const CONCESIONARIOS_PILOTO = [
   { nombre: "Tomás Felipe", zona: "Central", estado: "Distrito Capital" },
 ] as const;
 
+/** Concesionarios que solo llenan preguntas detalladas para el departamento de mecánica */
+export const CONCESIONARIOS_SOLO_MECANICA = ["mariperez motors", "cars"] as const;
+
 /** Helper: obtener label legible de un valor de nivel_toyota */
 export function getNivelToyotaLabel(value: string | null): string {
   if (!value) return "—";

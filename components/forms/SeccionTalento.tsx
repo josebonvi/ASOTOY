@@ -52,12 +52,14 @@ const perfilColumns: ColumnConfig[] = [
 interface SeccionTalentoProps {
   concesionarioId: string;
   cargos: Cargo[];
+  soloMecanica?: boolean;
   readOnly?: boolean;
 }
 
 export default function SeccionTalento({
   concesionarioId,
   cargos,
+  soloMecanica = false,
   readOnly,
 }: SeccionTalentoProps) {
   const router = useRouter();
@@ -70,18 +72,8 @@ export default function SeccionTalento({
 
   useEffect(() => {
     async function loadData() {
-      // Filter to only mecánica-related cargos
-      const isMecanicaArea = (area: string | null | undefined) => {
-        if (!area) return true;
-        const lower = area.toLowerCase();
-        return (
-          lower.includes("mecánica") ||
-          lower.includes("mecanica") ||
-          lower === "taller mecánico" ||
-          (lower.includes("servicio") && lower.includes("post"))
-        );
-      };
-      const tallerCargos = cargos.filter((c) => isMecanicaArea(c.area));
+      // Use cargos as-is (server already filtered if soloMecanica)
+      const tallerCargos = cargos;
 
       const { data: existingPerfiles } = await supabase
         .from("perfiles_talento")

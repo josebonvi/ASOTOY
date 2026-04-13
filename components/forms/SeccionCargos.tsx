@@ -67,6 +67,7 @@ interface SeccionCargosProps {
   cargos: Cargo[];
   areas: Area[];
   organigramaAprobado?: boolean;
+  soloMecanica?: boolean;
   readOnly?: boolean;
 }
 
@@ -76,6 +77,7 @@ export default function SeccionCargos({
   concesionarioId,
   cargos: initialCargos,
   organigramaAprobado = false,
+  soloMecanica = false,
   readOnly,
 }: SeccionCargosProps) {
   const router = useRouter();
@@ -280,7 +282,7 @@ export default function SeccionCargos({
   // ─── Render: Pre-populated mode ────────────────────────────────────────
 
   if (usePrePopulatedMode) {
-    // Split cargos into mecanica vs other areas
+    // Split cargos into mecanica vs other areas (only when soloMecanica)
     const isMecanicaArea = (area: string | undefined) => {
       if (!area) return true;
       const lower = area.toLowerCase();
@@ -291,8 +293,12 @@ export default function SeccionCargos({
         (lower.includes("servicio") && lower.includes("post"))
       );
     };
-    const mecanicaCargos = prePopCargos.filter((c) => isMecanicaArea(c.area));
-    const otherCargos = prePopCargos.filter((c) => !isMecanicaArea(c.area));
+    const mecanicaCargos = soloMecanica
+      ? prePopCargos.filter((c) => isMecanicaArea(c.area))
+      : prePopCargos;
+    const otherCargos = soloMecanica
+      ? prePopCargos.filter((c) => !isMecanicaArea(c.area))
+      : [];
 
     // Map mecanica indexes back to prePopCargos indexes for updates
     const mecanicaIndexMap = mecanicaCargos.map((c) =>
