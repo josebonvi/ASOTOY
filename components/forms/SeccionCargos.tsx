@@ -34,6 +34,7 @@ import {
   Plus,
   Trash2,
   FileCheck,
+  Lock,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -58,6 +59,7 @@ interface CargoEntry {
   num_personas: number | null;
   certificado_toyota: boolean;
   pre_populated: boolean;
+  area: string;
 }
 
 interface SeccionCargosProps {
@@ -98,6 +100,7 @@ export default function SeccionCargos({
         num_personas: cargo.num_personas,
         certificado_toyota: cargo.certificado_toyota,
         pre_populated: cargo.pre_populated ?? false,
+        area: cargo.area ?? "Taller Mecánico",
       }));
     }
 
@@ -115,6 +118,7 @@ export default function SeccionCargos({
         num_personas: cargo.num_personas,
         certificado_toyota: cargo.certificado_toyota,
         pre_populated: false,
+        area: cargo.area ?? "Taller Mecánico",
       };
     });
   };
@@ -167,6 +171,7 @@ export default function SeccionCargos({
         num_personas: 1,
         certificado_toyota: false,
         pre_populated: false,
+        area: "Taller Mecánico",
       },
     ]);
   }
@@ -201,6 +206,7 @@ export default function SeccionCargos({
           num_personas: null,
           certificado_toyota: false,
           pre_populated: false,
+          area: "Taller Mecánico",
         },
       };
     });
@@ -244,7 +250,7 @@ export default function SeccionCargos({
             concesionario_id: concesionarioId,
             nombre_cargo: c.nombre_cargo,
             nombre_cargo_dealer: c.nombre_cargo_dealer || null,
-            area: "Taller Mecánico",
+            area: c.area || "Taller Mecánico",
             nivel_toyota: c.nivel_toyota || null,
             nivel_interno: c.nivel_interno || null,
             num_personas: c.num_personas,
@@ -274,17 +280,34 @@ export default function SeccionCargos({
   // ─── Render: Pre-populated mode ────────────────────────────────────────
 
   if (usePrePopulatedMode) {
+    // Split cargos into mecanica vs other areas
+    const mecanicaCargos = prePopCargos.filter(
+      (c) => c.area === "Taller Mecánico" || !c.area
+    );
+    const otherCargos = prePopCargos.filter(
+      (c) => c.area && c.area !== "Taller Mecánico"
+    );
+
+    // Map mecanica indexes back to prePopCargos indexes for updates
+    const mecanicaIndexMap = mecanicaCargos.map((c) =>
+      prePopCargos.findIndex((p) => p.cargoKey === c.cargoKey)
+    );
+    const mecanicaTotalPersonas = mecanicaCargos.reduce(
+      (sum, c) => sum + (c.num_personas ?? 0),
+      0
+    );
+
     return (
       <div className="space-y-6">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3 text-sm text-muted-foreground">
             <Users size={16} />
             <span>
-              <strong className="text-foreground">{totalCargos}</strong> cargos
-              {totalPersonas > 0 && (
+              <strong className="text-foreground">{mecanicaCargos.length}</strong> cargos
+              {mecanicaTotalPersonas > 0 && (
                 <>
                   {" · "}
-                  <strong className="text-foreground">{totalPersonas}</strong>{" "}
+                  <strong className="text-foreground">{mecanicaTotalPersonas}</strong>{" "}
                   personas
                 </>
               )}
@@ -307,136 +330,153 @@ export default function SeccionCargos({
           </div>
         </div>
 
-        {/* Pre-populated cargo list */}
+        {/* ── Departamento de Mecánica (editable) ── */}
         <div className="space-y-3">
-          <AnimatePresence>
-            {prePopCargos.map((cargo, index) => (
-              <motion.div
-                key={cargo.cargoKey}
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, height: 0 }}
-                className="rounded-xl bg-card border border-border p-4 sm:p-5"
-              >
-                <div className="flex items-start justify-between gap-3 mb-3">
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 mb-1">
-                      <Input
-                        value={cargo.nombre_cargo}
-                        onChange={(e) =>
-                          updatePrePopCargo(index, "nombre_cargo", e.target.value)
-                        }
-                        placeholder="Nombre del cargo estándar..."
-                        disabled={readOnly}
-                        className="h-8 text-sm font-medium"
-                      />
-                    </div>
-                    {cargo.nombre_cargo_dealer && cargo.nombre_cargo_dealer !== cargo.nombre_cargo && (
-                      <p className="text-xs text-muted-foreground ml-1">
-                        Nombre interno: {cargo.nombre_cargo_dealer}
-                      </p>
-                    )}
-                  </div>
-                  <div className="flex items-center gap-2 shrink-0">
-                    {cargo.pre_populated && (
-                      <Badge variant="outline" className="text-xs text-success border-success/30">
-                        Organigrama
-                      </Badge>
-                    )}
-                    {!readOnly && (
-                      <button
-                        type="button"
-                        title="Eliminar cargo"
-                        onClick={() => removePrePopCargo(index)}
-                        className="rounded p-1.5 text-muted-foreground hover:bg-destructive/20 hover:text-destructive transition-colors"
-                      >
-                        <Trash2 size={14} />
-                      </button>
-                    )}
-                  </div>
-                </div>
+          <motion.div
+            initial={{ opacity: 0, x: -10 }}
+            animate={{ opacity: 1, x: 0 }}
+            className="flex items-center gap-2"
+          >
+            <Wrench size={16} className="text-primary" />
+            <h3 className="text-sm font-semibold text-foreground">
+              Departamento de Mecánica
+            </h3>
+            <Badge variant="outline" className="text-xs">
+              {mecanicaCargos.length} cargos
+            </Badge>
+          </motion.div>
 
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                  <div className="space-y-1">
-                    <label className="text-xs text-muted-foreground">
-                      N° personas
-                    </label>
-                    <Input
-                      type="number"
-                      min={0}
-                      value={cargo.num_personas ?? ""}
-                      onChange={(e) =>
-                        updatePrePopCargo(
-                          index,
-                          "num_personas",
-                          e.target.value === "" ? null : Number(e.target.value)
-                        )
-                      }
-                      placeholder="0"
-                      disabled={readOnly}
-                      className="h-9"
-                    />
-                  </div>
-                  <div className="space-y-1">
-                    <label className="text-xs text-muted-foreground">
-                      Nivel Toyota
-                    </label>
-                    <Select
-                      value={cargo.nivel_toyota || undefined}
-                      onValueChange={(v) =>
-                        updatePrePopCargo(index, "nivel_toyota", v ?? "")
-                      }
-                      disabled={readOnly}
-                    >
-                      <SelectTrigger className="w-full h-9">
-                        <SelectValue placeholder="Seleccionar..." />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {NIVELES_TOYOTA.map((n) => (
-                          <SelectItem key={n.value} value={n.value}>
-                            {n.label}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div className="space-y-1">
-                    <label className="text-xs text-muted-foreground">
-                      Nombre interno
-                    </label>
-                    <Input
-                      value={cargo.nivel_interno}
-                      onChange={(e) =>
-                        updatePrePopCargo(index, "nivel_interno", e.target.value)
-                      }
-                      placeholder="Ej: G2, Senior"
-                      disabled={readOnly}
-                      className="h-9"
-                    />
-                  </div>
-                  <div className="space-y-1">
-                    <label className="text-xs text-muted-foreground">
-                      Cert. Toyota
-                    </label>
-                    <div className="flex items-center h-9">
-                      <Switch
-                        checked={cargo.certificado_toyota}
-                        onCheckedChange={(v) =>
-                          updatePrePopCargo(index, "certificado_toyota", v)
-                        }
-                        disabled={readOnly}
-                      />
-                      <span className="ml-2 text-xs text-muted-foreground">
-                        {cargo.certificado_toyota ? "Sí" : "No"}
-                      </span>
+          <AnimatePresence>
+            {mecanicaCargos.map((cargo, localIndex) => {
+              const realIndex = mecanicaIndexMap[localIndex];
+              return (
+                <motion.div
+                  key={cargo.cargoKey}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, height: 0 }}
+                  className="rounded-xl bg-card border border-border p-4 sm:p-5"
+                >
+                  <div className="flex items-start justify-between gap-3 mb-3">
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 mb-1">
+                        <Input
+                          value={cargo.nombre_cargo}
+                          onChange={(e) =>
+                            updatePrePopCargo(realIndex, "nombre_cargo", e.target.value)
+                          }
+                          placeholder="Nombre del cargo estándar..."
+                          disabled={readOnly}
+                          className="h-8 text-sm font-medium"
+                        />
+                      </div>
+                      {cargo.nombre_cargo_dealer && cargo.nombre_cargo_dealer !== cargo.nombre_cargo && (
+                        <p className="text-xs text-muted-foreground ml-1">
+                          Nombre interno: {cargo.nombre_cargo_dealer}
+                        </p>
+                      )}
+                    </div>
+                    <div className="flex items-center gap-2 shrink-0">
+                      {cargo.pre_populated && (
+                        <Badge variant="outline" className="text-xs text-success border-success/30">
+                          Organigrama
+                        </Badge>
+                      )}
+                      {!readOnly && (
+                        <button
+                          type="button"
+                          title="Eliminar cargo"
+                          onClick={() => removePrePopCargo(realIndex)}
+                          className="rounded p-1.5 text-muted-foreground hover:bg-destructive/20 hover:text-destructive transition-colors"
+                        >
+                          <Trash2 size={14} />
+                        </button>
+                      )}
                     </div>
                   </div>
-                </div>
-              </motion.div>
-            ))}
+
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                    <div className="space-y-1">
+                      <label className="text-xs text-muted-foreground">
+                        N° personas
+                      </label>
+                      <Input
+                        type="number"
+                        min={0}
+                        value={cargo.num_personas ?? ""}
+                        onChange={(e) =>
+                          updatePrePopCargo(
+                            realIndex,
+                            "num_personas",
+                            e.target.value === "" ? null : Number(e.target.value)
+                          )
+                        }
+                        placeholder="0"
+                        disabled={readOnly}
+                        className="h-9"
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <label className="text-xs text-muted-foreground">
+                        Nivel Toyota
+                      </label>
+                      <Select
+                        value={cargo.nivel_toyota || undefined}
+                        onValueChange={(v) =>
+                          updatePrePopCargo(realIndex, "nivel_toyota", v ?? "")
+                        }
+                        disabled={readOnly}
+                      >
+                        <SelectTrigger className="w-full h-9">
+                          <SelectValue placeholder="Seleccionar..." />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {NIVELES_TOYOTA.map((n) => (
+                            <SelectItem key={n.value} value={n.value}>
+                              {n.label}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="space-y-1">
+                      <label className="text-xs text-muted-foreground">
+                        Nombre interno
+                      </label>
+                      <Input
+                        value={cargo.nivel_interno}
+                        onChange={(e) =>
+                          updatePrePopCargo(realIndex, "nivel_interno", e.target.value)
+                        }
+                        placeholder="Ej: G2, Senior"
+                        disabled={readOnly}
+                        className="h-9"
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <label className="text-xs text-muted-foreground">
+                        Cert. Toyota
+                      </label>
+                      <div className="flex items-center h-9">
+                        <Switch
+                          checked={cargo.certificado_toyota}
+                          onCheckedChange={(v) =>
+                            updatePrePopCargo(realIndex, "certificado_toyota", v)
+                          }
+                          disabled={readOnly}
+                        />
+                        <span className="ml-2 text-xs text-muted-foreground">
+                          {cargo.certificado_toyota ? "Sí" : "No"}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </motion.div>
+              );
+            })}
           </AnimatePresence>
 
-          {/* Add cargo button */}
+          {/* Add cargo button — only in mecánica section */}
           {!readOnly && (
             <button
               onClick={addPrePopCargo}
@@ -447,6 +487,70 @@ export default function SeccionCargos({
             </button>
           )}
         </div>
+
+        {/* ── Otras áreas (bloqueadas / read-only) ── */}
+        {otherCargos.length > 0 && (
+          <div className="space-y-3">
+            <motion.div
+              initial={{ opacity: 0, x: -10 }}
+              animate={{ opacity: 1, x: 0 }}
+              className="flex items-center gap-2"
+            >
+              <Lock size={16} className="text-muted-foreground" />
+              <h3 className="text-sm font-semibold text-muted-foreground">
+                Otras áreas
+              </h3>
+              <Badge
+                variant="outline"
+                className="text-xs text-muted-foreground border-muted-foreground/30"
+              >
+                Próximamente
+              </Badge>
+            </motion.div>
+
+            <div className="rounded-lg bg-muted/30 border border-border/50 px-4 py-2.5 text-xs text-muted-foreground">
+              Estos cargos pertenecen a otras áreas de su organigrama. La
+              configuración de estas áreas estará disponible próximamente.
+            </div>
+
+            <div className="space-y-2">
+              {otherCargos.map((cargo) => (
+                <div
+                  key={cargo.cargoKey}
+                  className="relative rounded-xl bg-card border border-border p-4 sm:p-5 opacity-50 pointer-events-none select-none"
+                >
+                  {/* Lock overlay icon */}
+                  <div className="absolute top-3 right-3">
+                    <Lock size={14} className="text-muted-foreground/60" />
+                  </div>
+
+                  <div className="flex items-start gap-3 mb-2">
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium text-foreground truncate">
+                        {cargo.nombre_cargo}
+                      </p>
+                      <p className="text-xs text-muted-foreground mt-0.5">
+                        Área: {cargo.area}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-4 text-xs text-muted-foreground">
+                    {cargo.num_personas != null && (
+                      <span>
+                        <Users size={12} className="inline mr-1" />
+                        {cargo.num_personas} persona{cargo.num_personas !== 1 ? "s" : ""}
+                      </span>
+                    )}
+                    <span className="italic">
+                      Este cargo no pertenece al departamento de mecánica — próximamente
+                    </span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* Rotation */}
         <div className="rounded-xl bg-card border border-border p-4 sm:p-6 space-y-4">

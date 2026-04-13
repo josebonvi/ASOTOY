@@ -1,6 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import ConcesionariosTable from "@/components/admin/ConcesionariosTable";
-import type { FormularioEstado, FormularioProgreso } from "@/lib/types";
+import type { FormularioEstado, FormularioProgreso, OrganigramaEstado } from "@/lib/types";
 
 export default async function ConcesionariosPage() {
   const supabase = await createClient();
@@ -8,7 +8,7 @@ export default async function ConcesionariosPage() {
   const { data } = await supabase
     .from("concesionarios")
     .select(
-      "id, nombre, zona, estado, formulario_estado, formulario_progreso, updated_at"
+      "id, nombre, zona, estado, formulario_estado, formulario_progreso, organigrama_estado, updated_at"
     )
     .order("nombre");
 
@@ -19,12 +19,14 @@ export default async function ConcesionariosPage() {
     estado: c.estado as string | null,
     formulario_estado: c.formulario_estado as FormularioEstado,
     formulario_progreso: (c.formulario_progreso as FormularioProgreso) ?? {
+      organigrama: false,
       seccion1: false,
       seccion2: false,
       seccion3: false,
       seccion4: false,
       seccion5: false,
     },
+    organigrama_estado: (c.organigrama_estado as OrganigramaEstado) ?? "no_iniciado",
     updated_at: c.updated_at as string,
   }));
 

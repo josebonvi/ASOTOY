@@ -34,7 +34,8 @@ export async function updateSession(request: NextRequest) {
   const isProtected =
     pathname.startsWith("/inicio") ||
     pathname.startsWith("/admin") ||
-    pathname.startsWith("/formulario");
+    pathname.startsWith("/formulario") ||
+    pathname.startsWith("/organigrama");
 
   // Not logged in trying to access protected routes → login
   if (!user && isProtected) {
@@ -74,8 +75,8 @@ export async function updateSession(request: NextRequest) {
       return NextResponse.redirect(url);
     }
 
-    // Admin trying to access dealer form routes
-    if (role === "admin" && pathname.startsWith("/formulario")) {
+    // Admin trying to access dealer routes
+    if (role === "admin" && (pathname.startsWith("/formulario") || pathname.startsWith("/organigrama"))) {
       const url = request.nextUrl.clone();
       url.pathname = "/admin/dashboard";
       return NextResponse.redirect(url);

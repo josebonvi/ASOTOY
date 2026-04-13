@@ -11,9 +11,10 @@ import {
   AlertCircle,
   Search,
 } from "lucide-react";
-import type { FormularioEstado, FormularioProgreso } from "@/lib/types";
+import type { FormularioEstado, FormularioProgreso, OrganigramaEstado } from "@/lib/types";
 
 type FilterEstado = "todos" | FormularioEstado;
+type FilterOrganigrama = "todos_org" | OrganigramaEstado;
 
 interface ConcesionarioRow {
   id: string;
@@ -22,6 +23,7 @@ interface ConcesionarioRow {
   estado: string | null;
   formulario_estado: FormularioEstado;
   formulario_progreso: FormularioProgreso;
+  organigrama_estado: OrganigramaEstado;
   updated_at: string;
 }
 
@@ -34,6 +36,28 @@ const ESTADO_LABELS: Record<FormularioEstado, string> = {
   en_progreso: "En progreso",
   pendiente: "Pendiente",
 };
+
+const ORGANIGRAMA_LABELS: Record<OrganigramaEstado, string> = {
+  no_iniciado: "No enviado",
+  pendiente: "Pendiente",
+  en_revision: "En revisión",
+  aprobado: "Aprobado",
+};
+
+const ORGANIGRAMA_STYLES: Record<OrganigramaEstado, string> = {
+  no_iniciado: "bg-muted text-muted-foreground",
+  pendiente: "bg-warning/10 text-warning",
+  en_revision: "bg-blue-500/10 text-blue-400",
+  aprobado: "bg-success/10 text-success",
+};
+
+const ORGANIGRAMA_FILTERS: { id: FilterOrganigrama; label: string }[] = [
+  { id: "todos_org", label: "Todos" },
+  { id: "no_iniciado", label: "No enviado" },
+  { id: "pendiente", label: "Pendiente" },
+  { id: "en_revision", label: "En revisión" },
+  { id: "aprobado", label: "Aprobado" },
+];
 
 const FILTERS: { id: FilterEstado; label: string; icon: typeof Building2 }[] = [
   { id: "todos", label: "Todos", icon: Building2 },
@@ -66,6 +90,7 @@ function toCsv(rows: Record<string, unknown>[]): string {
 
 export default function ConcesionariosTable({ concesionarios }: Props) {
   const [filtro, setFiltro] = useState<FilterEstado>("todos");
+  const [filtroOrg, setFiltroOrg] = useState<FilterOrganigrama>("todos_org");
   const [busqueda, setBusqueda] = useState("");
 
   const counts = useMemo(() => {
@@ -73,6 +98,15 @@ export default function ConcesionariosTable({ concesionarios }: Props) {
     for (const conc of concesionarios) {
       c.todos++;
       c[conc.formulario_estado]++;
+    }
+    return c;
+  }, [concesionarios]);
+
+  const orgCounts = useMemo(() => {
+    const c = { todos_org: 0, no_iniciado: 0, pendiente: 0, en_revision: 0, aprobado: 0 };
+    for (const conc of concesionarios) {
+      c.todos_org++;
+      c[conc.organigrama_estado ?? "no_iniciado"]++;
     }
     return c;
   }, [concesionarios]);
@@ -86,6 +120,9 @@ export default function ConcesionariosTable({ concesionarios }: Props) {
     if (filtro !== "todos") {
       list = list.filter((c) => c.formulario_estado === filtro);
     }
+    if (filtroOrg !== "todos_org") {
+      list = list.filter((c) => (c.organigrama_estado ?? "no_iniciado") === filtroOrg);
+    }
     if (busqueda.trim()) {
       const q = busqueda.toLowerCase();
       list = list.filter(
@@ -96,7 +133,7 @@ export default function ConcesionariosTable({ concesionarios }: Props) {
       );
     }
     return list;
-  }, [concesionarios, filtro, busqueda]);
+  }, [concesionarios, filtro, filtroOrg, busqueda]);
 
   function handleExportCsv() {
     const rows = filtered.map((c) => {
@@ -115,6 +152,7 @@ export default function ConcesionariosTable({ concesionarios }: Props) {
         estado_geo: c.estado ?? "",
         formulario_estado: ESTADO_LABELS[c.formulario_estado],
         progreso_pct: pct,
+        organigrama_estado: ORGANIGRAMA_LABELS[c.organigrama_estado ?? "no_iniciado"],
         ultima_actividad: new Date(c.updated_at).toLocaleDateString("es-VE"),
       };
     });
@@ -164,37 +202,41 @@ export default function ConcesionariosTable({ concesionarios }: Props) {
       </div>
 
       {/* Filtros + Búsqueda + Exportar */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 mb-4">
-        <div className="flex gap-1.5 flex-wrap">
-          {FILTERS.map((f) => {
-            const isActive = filtro === f.id;
-            return (
-              <button
-                key={f.id}
-                onClick={() => setFiltro(f.id)}
-                className={`flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-lg border transition-colors ${
-                  isActive
-                    ? "bg-primary text-primary-foreground border-primary"
-                    : "bg-card text-muted-foreground border-border hover:bg-accent"
-                }`}
-              >
-                <f.icon size={13} />
-                {f.label}
-                <span
-                  className={`ml-0.5 text-[10px] px-1.5 py-0.5 rounded-full ${
-                    isActive
-                      ? "bg-primary-foreground/20"
-                      : "bg-muted"
-                  }`}
-                >
-                  {counts[f.id]}
-                </span>
-              </button>
-            );
-          })}
-        </div>
+      <div className="flex flex-col gap-3 mb-4">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
+          <div className="flex items-center gap-2 flex-wrap">
+            <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Formulario</span>
+            <div className="flex gap-1.5 flex-wrap">
+              {FILTERS.map((f) => {
+                const isActive = filtro === f.id;
+                return (
+                  <button
+                    key={f.id}
+                    onClick={() => setFiltro(f.id)}
+                    className={`flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-lg border transition-colors ${
+                      isActive
+                        ? "bg-primary text-primary-foreground border-primary"
+                        : "bg-card text-muted-foreground border-border hover:bg-accent"
+                    }`}
+                  >
+                    <f.icon size={13} />
+                    {f.label}
+                    <span
+                      className={`ml-0.5 text-[10px] px-1.5 py-0.5 rounded-full ${
+                        isActive
+                          ? "bg-primary-foreground/20"
+                          : "bg-muted"
+                      }`}
+                    >
+                      {counts[f.id]}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
 
-        <div className="flex gap-2 sm:ml-auto w-full sm:w-auto">
+          <div className="flex gap-2 sm:ml-auto w-full sm:w-auto">
           <div className="relative flex-1 sm:w-52 sm:flex-none">
             <Search
               size={14}
@@ -216,6 +258,38 @@ export default function ConcesionariosTable({ concesionarios }: Props) {
             <span className="hidden sm:inline">Exportar CSV</span>
           </button>
         </div>
+        </div>
+
+        <div className="flex items-center gap-2 flex-wrap">
+          <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Organigrama</span>
+          <div className="flex gap-1.5 flex-wrap">
+            {ORGANIGRAMA_FILTERS.map((f) => {
+              const isActive = filtroOrg === f.id;
+              return (
+                <button
+                  key={f.id}
+                  onClick={() => setFiltroOrg(f.id)}
+                  className={`flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-lg border transition-colors ${
+                    isActive
+                      ? "bg-primary text-primary-foreground border-primary"
+                      : "bg-card text-muted-foreground border-border hover:bg-accent"
+                  }`}
+                >
+                  {f.label}
+                  <span
+                    className={`ml-0.5 text-[10px] px-1.5 py-0.5 rounded-full ${
+                      isActive
+                        ? "bg-primary-foreground/20"
+                        : "bg-muted"
+                    }`}
+                  >
+                    {orgCounts[f.id]}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+        </div>
       </div>
 
       {/* Tabla */}
@@ -230,7 +304,10 @@ export default function ConcesionariosTable({ concesionarios }: Props) {
                 Zona / Estado
               </th>
               <th className="text-left px-4 py-3 font-medium text-muted-foreground">
-                Estado
+                Formulario
+              </th>
+              <th className="text-left px-4 py-3 font-medium text-muted-foreground hidden sm:table-cell">
+                Organigrama
               </th>
               <th className="text-left px-4 py-3 font-medium text-muted-foreground w-40 hidden sm:table-cell">
                 Progreso
@@ -245,7 +322,7 @@ export default function ConcesionariosTable({ concesionarios }: Props) {
             {filtered.length === 0 ? (
               <tr>
                 <td
-                  colSpan={6}
+                  colSpan={7}
                   className="text-center py-12 text-muted-foreground"
                 >
                   {busqueda
@@ -288,6 +365,15 @@ export default function ConcesionariosTable({ concesionarios }: Props) {
                         }`}
                       >
                         {ESTADO_LABELS[c.formulario_estado]}
+                      </span>
+                    </td>
+                    <td className="px-4 py-4 hidden sm:table-cell">
+                      <span
+                        className={`text-xs font-medium px-2 py-1 rounded ${
+                          ORGANIGRAMA_STYLES[c.organigrama_estado ?? "no_iniciado"]
+                        }`}
+                      >
+                        {ORGANIGRAMA_LABELS[c.organigrama_estado ?? "no_iniciado"]}
                       </span>
                     </td>
                     <td className="px-4 py-4 hidden sm:table-cell">

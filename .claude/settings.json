@@ -55,21 +55,33 @@
   "hooks": {
     "SessionStart": [
       {
-        "type": "command",
-        "command": "node scripts/claude-hook.js"
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node scripts/claude-hook.js"
+          }
+        ]
       }
     ],
     "PostToolUse": [
       {
-        "type": "command",
-        "command": "node scripts/claude-hook.js",
-        "toolNames": ["Write", "Edit", "Bash"]
+        "matcher": "Write|Edit|Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node scripts/claude-hook.js"
+          }
+        ]
       }
     ],
     "Stop": [
       {
-        "type": "command",
-        "command": "node scripts/claude-hook.js"
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node scripts/claude-hook.js"
+          }
+        ]
       }
     ]
   }
