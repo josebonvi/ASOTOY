@@ -580,10 +580,15 @@ export default function SeccionCargos({
 
         {!readOnly && (
           <div className="flex justify-end">
-            <Button onClick={handleContinue} className="gap-2">
-              Guardar y continuar
-              <ArrowRight size={16} />
-            </Button>
+            <motion.div
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+            >
+              <Button onClick={handleContinue} className="gap-2">
+                Guardar y continuar
+                <ArrowRight size={16} />
+              </Button>
+            </motion.div>
           </div>
         )}
       </div>
@@ -823,10 +828,15 @@ export default function SeccionCargos({
 
       {!readOnly && (
         <div className="flex justify-end">
-          <Button onClick={handleContinue} className="gap-2">
-            Guardar y continuar
-            <ArrowRight size={16} />
-          </Button>
+          <motion.div
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+          >
+            <Button onClick={handleContinue} className="gap-2">
+              Guardar y continuar
+              <ArrowRight size={16} />
+            </Button>
+          </motion.div>
         </div>
       )}
     </div>

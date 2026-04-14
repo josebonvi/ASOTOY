@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import DealerSidebar from "@/components/layout/DealerSidebar";
+import PageTransition from "@/components/shared/PageTransition";
 import type { FormularioProgreso } from "@/lib/types";
 
 export default async function DealerLayout({
@@ -37,7 +38,9 @@ export default async function DealerLayout({
         concesionarioNombre={concesionario.nombre}
         progreso={progreso}
       />
-      <main className="flex-1 md:ml-64 p-4 pt-16 md:pt-6 md:p-6 overflow-auto">{children}</main>
+      <main className="flex-1 md:ml-80 p-4 pt-16 md:pt-6 md:p-6 overflow-auto">
+        <PageTransition>{children}</PageTransition>
+      </main>
     </div>
   );
 }

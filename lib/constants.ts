@@ -125,6 +125,7 @@ export const FORMULARIO_SECCIONES = [
     id: 1,
     key: "seccion1" as const,
     titulo: "Datos del Concesionario",
+    tituloCorto: "Datos",
     icono: "Building2",
     requiere: null,
   },
@@ -132,6 +133,7 @@ export const FORMULARIO_SECCIONES = [
     id: 2,
     key: "seccion2" as const,
     titulo: "Clasificación de Cargos",
+    tituloCorto: "Cargos",
     icono: "Users",
     requiere: "organigrama" as const,
   },
@@ -139,6 +141,7 @@ export const FORMULARIO_SECCIONES = [
     id: 3,
     key: "seccion3" as const,
     titulo: "Rangos de Remuneración",
+    tituloCorto: "Salarios",
     icono: "DollarSign",
     requiere: "seccion2" as const,
   },
@@ -146,6 +149,7 @@ export const FORMULARIO_SECCIONES = [
     id: 4,
     key: "seccion4" as const,
     titulo: "Perfil del Talento",
+    tituloCorto: "Talento",
     icono: "GraduationCap",
     requiere: "seccion2" as const,
   },
@@ -153,6 +157,7 @@ export const FORMULARIO_SECCIONES = [
     id: 5,
     key: "seccion5" as const,
     titulo: "Necesidades y Brechas",
+    tituloCorto: "Necesidades",
     icono: "Target",
     requiere: null,
   },
@@ -164,6 +169,8 @@ export const CONCESIONARIOS_PILOTO = [
   { nombre: "Tomás Felipe", zona: "Central", estado: "Distrito Capital" },
 ] as const;
 
+// TODO: Migrar a campo booleano `solo_mecanica` en la tabla `concesionarios` de Supabase.
+// Este array hardcodeado funciona para el piloto pero no escala a 47 concesionarios.
 /** Concesionarios que solo llenan preguntas detalladas para el departamento de mecánica */
 export const CONCESIONARIOS_SOLO_MECANICA = ["mariperez motors", "cars"] as const;
 

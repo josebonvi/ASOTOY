@@ -7,47 +7,21 @@ import { useAutoSave } from "@/hooks/useAutoSave";
 import { useFormProgress } from "@/hooks/useFormProgress";
 import { EDUCACION_MINIMA } from "@/lib/constants";
 import type { Cargo } from "@/lib/types";
-import { DynamicTable, type ColumnConfig } from "@/components/forms/DynamicTable";
 import { SaveIndicator } from "@/components/shared/SaveIndicator";
 import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { Switch } from "@/components/ui/switch";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, AlertTriangle } from "lucide-react";
-
-const perfilColumns: ColumnConfig[] = [
-  { key: "cargo_nombre", label: "Cargo", type: "text", readOnly: true },
-  {
-    key: "educacion_minima",
-    label: "Educación mín.",
-    type: "select",
-    options: [...EDUCACION_MINIMA],
-  },
-  {
-    key: "certificacion_toyota_suficiente",
-    label: "Cert. Toyota suf.",
-    type: "toggle",
-    width: "100px",
-  },
-  {
-    key: "formacion_adicional",
-    label: "Formación adicional",
-    type: "text",
-    placeholder: "Ej: Curso de electrónica",
-  },
-  {
-    key: "experiencia_minima_anios",
-    label: "Exp. mín. (años)",
-    type: "number",
-    placeholder: "0",
-    width: "100px",
-  },
-  {
-    key: "habilidades_clave",
-    label: "Habilidades clave",
-    type: "text",
-    placeholder: "Ej: Diagnóstico, liderazgo",
-  },
-];
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { ArrowRight, AlertTriangle, GraduationCap } from "lucide-react";
+import { motion } from "framer-motion";
 
 interface SeccionTalentoProps {
   concesionarioId: string;
@@ -188,31 +162,150 @@ export default function SeccionTalento({
     );
   }
 
+  // Helper to update a perfil field by index
+  function updatePerfil(index: number, field: string, value: unknown) {
+    setPerfiles((prev) =>
+      prev.map((p, i) => (i === index ? { ...p, [field]: value } : p))
+    );
+  }
+
   return (
     <div className="space-y-6">
-      <div className="flex justify-end">
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-3 text-sm text-muted-foreground">
+          <GraduationCap size={16} />
+          <span>
+            <strong className="text-foreground">{perfiles.length}</strong> cargos
+          </span>
+        </div>
         <SaveIndicator status={status} />
       </div>
 
-      {/* Profiles table */}
-      <div className="rounded-xl bg-card border border-border p-6">
-        <h3 className="text-sm font-semibold mb-1">
-          Perfil del talento por cargo
-        </h3>
-        <p className="text-xs text-muted-foreground mb-4">
-          Los cargos se pre-llenaron de la Sección 2. Indique el perfil mínimo
-          requerido para cada uno.
-        </p>
-        <DynamicTable
-          columns={perfilColumns}
-          data={perfiles}
-          onChange={setPerfiles}
-          minRows={perfiles.length}
-        />
+      {/* Instructions banner */}
+      <div className="rounded-lg bg-primary/5 border border-primary/20 px-4 py-3 text-sm text-muted-foreground">
+        Los cargos se pre-llenaron de la Sección 2. Indique el perfil mínimo
+        requerido para cada uno.
+      </div>
+
+      {/* Cargo cards */}
+      <div className="space-y-4">
+        {perfiles.map((perfil, index) => (
+          <div
+            key={perfil.cargo_id as string}
+            className="rounded-xl bg-card border border-border p-4 sm:p-5"
+          >
+            {/* Card title: cargo name */}
+            <div className="flex items-center gap-2 mb-4">
+              <GraduationCap size={16} className="text-primary shrink-0" />
+              <h4 className="text-sm font-semibold text-foreground">
+                {perfil.cargo_nombre as string}
+              </h4>
+            </div>
+
+            {/* Fields grid: 2 columns on mobile, 3 on larger screens */}
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+              {/* Educacion minima - select */}
+              <div className="space-y-1.5">
+                <label className="text-xs text-muted-foreground">
+                  Educación mínima
+                </label>
+                <Select
+                  value={(perfil.educacion_minima as string) || undefined}
+                  onValueChange={(v) => updatePerfil(index, "educacion_minima", v ?? "")}
+                  disabled={readOnly}
+                >
+                  <SelectTrigger className="w-full h-10">
+                    <SelectValue placeholder="Seleccionar..." />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {EDUCACION_MINIMA.map((opt) => (
+                      <SelectItem key={opt.value} value={opt.value}>
+                        {opt.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Certificacion Toyota suficiente - toggle */}
+              <div className="space-y-1.5">
+                <label className="text-xs text-muted-foreground">
+                  Cert. Toyota suficiente
+                </label>
+                <div className="flex items-center h-10">
+                  <Switch
+                    checked={perfil.certificacion_toyota_suficiente as boolean}
+                    onCheckedChange={(v) =>
+                      updatePerfil(index, "certificacion_toyota_suficiente", v)
+                    }
+                    disabled={readOnly}
+                  />
+                  <span className="ml-2 text-sm text-muted-foreground">
+                    {perfil.certificacion_toyota_suficiente ? "Sí" : "No"}
+                  </span>
+                </div>
+              </div>
+
+              {/* Experiencia minima en años - number */}
+              <div className="space-y-1.5">
+                <label className="text-xs text-muted-foreground">
+                  Experiencia mín. (años)
+                </label>
+                <Input
+                  type="number"
+                  min={0}
+                  value={perfil.experiencia_minima_anios != null ? String(perfil.experiencia_minima_anios) : ""}
+                  onChange={(e) =>
+                    updatePerfil(
+                      index,
+                      "experiencia_minima_anios",
+                      e.target.value === "" ? null : Number(e.target.value)
+                    )
+                  }
+                  placeholder="0"
+                  disabled={readOnly}
+                  className="h-10"
+                />
+              </div>
+
+              {/* Formacion adicional - text input (spans 2 cols on mobile) */}
+              <div className="space-y-1.5 col-span-2 sm:col-span-1">
+                <label className="text-xs text-muted-foreground">
+                  Formación adicional
+                </label>
+                <Input
+                  value={(perfil.formacion_adicional as string) || ""}
+                  onChange={(e) =>
+                    updatePerfil(index, "formacion_adicional", e.target.value)
+                  }
+                  placeholder="Ej: Curso de electrónica"
+                  disabled={readOnly}
+                  className="h-10"
+                />
+              </div>
+
+              {/* Habilidades clave - text input (spans full width) */}
+              <div className="space-y-1.5 col-span-2">
+                <label className="text-xs text-muted-foreground">
+                  Habilidades clave
+                </label>
+                <Input
+                  value={(perfil.habilidades_clave as string) || ""}
+                  onChange={(e) =>
+                    updatePerfil(index, "habilidades_clave", e.target.value)
+                  }
+                  placeholder="Ej: Diagnóstico, liderazgo, trabajo en equipo"
+                  disabled={readOnly}
+                  className="h-10"
+                />
+              </div>
+            </div>
+          </div>
+        ))}
       </div>
 
       {/* Missing skills */}
-      <div className="rounded-xl bg-card border border-border p-6 space-y-2">
+      <div className="rounded-xl bg-card border border-border p-4 sm:p-6 space-y-2">
         <Label>
           ¿Qué le falta al equipo actual en general?
         </Label>
@@ -227,10 +320,15 @@ export default function SeccionTalento({
 
       {!readOnly && (
         <div className="flex justify-end">
-          <Button onClick={handleContinue} className="gap-2">
-            Guardar y continuar
-            <ArrowRight size={16} />
-          </Button>
+          <motion.div
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+          >
+            <Button onClick={handleContinue} className="gap-2">
+              Guardar y continuar
+              <ArrowRight size={16} />
+            </Button>
+          </motion.div>
         </div>
       )}
     </div>

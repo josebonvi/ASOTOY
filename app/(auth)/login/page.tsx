@@ -4,6 +4,7 @@ import { useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
+import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -52,7 +53,7 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 bg-background relative">
+    <div className="min-h-screen flex flex-col items-center justify-center p-4 bg-background relative before:absolute before:inset-0 before:bg-[linear-gradient(to_right,rgba(255,255,255,0.03)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.03)_1px,transparent_1px)] before:bg-[size:40px_40px] before:pointer-events-none">
       {/* Background glow — red ASOTOY */}
       <div
         className="fixed inset-0 pointer-events-none"
@@ -62,26 +63,33 @@ export default function LoginPage() {
         }}
       />
 
-      <div className="w-full max-w-sm relative z-10">
+      <div className="w-full max-w-sm relative z-10 flex-1 flex flex-col justify-center">
         {/* Logo */}
         <div className="text-center mb-8">
           <div className="flex justify-center mb-4">
-            <Image
-              src="/logo.png"
-              alt="ASOTOY"
-              width={180}
-              height={60}
-              priority
-              className="h-14 w-auto"
-            />
+            <div className="bg-white rounded-lg px-5 py-3 inline-block shadow-lg" style={{ boxShadow: "0 0 60px oklch(0.50 0.22 29 / 12%)" }}>
+              <Image
+                src="/logo.png"
+                alt="ASOTOY"
+                width={240}
+                height={80}
+                priority
+                className="h-20 w-auto"
+              />
+            </div>
           </div>
           <p className="text-sm text-muted-foreground">
             Portal de Remuneración — Red de Concesionarios Toyota Venezuela
           </p>
         </div>
 
-        {/* Card */}
-        <div className="rounded-xl p-6 bg-card border border-border">
+        {/* Card con animación */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, ease: "easeOut" }}
+          className="rounded-xl p-6 bg-card border border-border"
+        >
           {/* Red accent line */}
           <div className="h-1 bg-primary rounded-full -mt-6 mx-auto mb-6 w-16" />
 
@@ -123,11 +131,20 @@ export default function LoginPage() {
               </div>
             )}
 
-            <Button type="submit" disabled={loading} className="w-full mt-2">
-              {loading ? "Ingresando..." : "Ingresar al portal"}
-            </Button>
+            <motion.div
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+            >
+              <Button
+                type="submit"
+                disabled={loading}
+                className="w-full mt-2 bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 hover:brightness-110 transition-all"
+              >
+                {loading ? "Ingresando..." : "Ingresar al portal"}
+              </Button>
+            </motion.div>
           </form>
-        </div>
+        </motion.div>
 
         <p className="text-center text-xs mt-6 text-muted-foreground">
           ¿Problemas para acceder? Escriba a{" "}
@@ -137,6 +154,9 @@ export default function LoginPage() {
           Asociación Nacional de Concesionarios Toyota de Venezuela
         </p>
       </div>
+
+      {/* Footer */}
+      <footer className="relative z-10 pb-4" />
     </div>
   );
 }

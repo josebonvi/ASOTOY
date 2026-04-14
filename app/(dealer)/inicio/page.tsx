@@ -18,6 +18,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import type { OrganigramaEstado } from "@/lib/types";
+import { StaggerContainer, StaggerItem } from "@/components/shared/StaggerAnimation";
 
 const iconMap: Record<string, React.ElementType> = {
   Building2,
@@ -64,12 +65,12 @@ export default async function DealerDashboard() {
     : "/formulario/confirmacion";
 
   return (
-    <div className="max-w-4xl">
+    <div className="max-w-5xl mx-auto w-full">
       {/* Welcome banner */}
-      <div className="rounded-xl bg-gradient-to-br from-primary via-primary/90 to-primary/70 p-5 sm:p-8 mb-6 relative overflow-hidden">
+      <div className="rounded-xl bg-gradient-to-br from-primary via-primary/90 to-primary/70 p-5 sm:p-8 mb-6 relative overflow-hidden before:absolute before:inset-0 before:bg-[radial-gradient(circle_at_20%_30%,rgba(255,255,255,0.08)_1px,transparent_1px),radial-gradient(circle_at_70%_60%,rgba(255,255,255,0.06)_1px,transparent_1px),radial-gradient(circle_at_40%_80%,rgba(255,255,255,0.05)_1px,transparent_1px)] before:bg-[length:60px_60px,80px_80px,100px_100px] before:opacity-60 before:pointer-events-none after:absolute after:inset-0 after:bg-[radial-gradient(circle_at_10%_20%,rgba(255,255,255,0.15)_1px,transparent_1px),radial-gradient(circle_at_30%_50%,rgba(255,255,255,0.12)_1px,transparent_1px),radial-gradient(circle_at_50%_30%,rgba(255,255,255,0.1)_1px,transparent_1px),radial-gradient(circle_at_70%_70%,rgba(255,255,255,0.12)_1px,transparent_1px),radial-gradient(circle_at_90%_40%,rgba(255,255,255,0.15)_1px,transparent_1px)] after:bg-[length:40px_40px,55px_55px,70px_70px,85px_85px,50px_50px] after:opacity-[0.06] after:pointer-events-none">
         {/* Decorative circles */}
-        <div className="absolute -top-12 -right-12 w-40 h-40 rounded-full bg-white/5" />
-        <div className="absolute -bottom-8 -right-4 w-24 h-24 rounded-full bg-white/5" />
+        <div className="absolute -top-12 -right-12 w-40 h-40 rounded-full bg-white/5 animate-pulse" style={{ animationDuration: '8s' }} />
+        <div className="absolute -bottom-8 -right-4 w-24 h-24 rounded-full bg-white/5 animate-pulse" style={{ animationDuration: '8s', animationDelay: '2s' }} />
         <div className="relative">
           <p className="text-primary-foreground/60 text-xs font-medium uppercase tracking-wider mb-2">
             Estudio de Remuneración — Red Toyota Venezuela
@@ -92,15 +93,15 @@ export default async function DealerDashboard() {
                 : completedCount === 6
                   ? "Ver confirmación"
                   : "Continuar donde te quedaste"}
-              <ArrowRight size={16} className="ml-2" />
+              <ArrowRight size={16} className="ml-2 animate-bounce" style={{ animationDuration: '2s' }} />
             </Button>
           </Link>
         </div>
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
-        <div className="rounded-xl p-5 bg-card border border-border">
+      <StaggerContainer className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
+        <StaggerItem className="rounded-xl p-5 bg-card border border-border border-t-2 border-t-primary shadow-sm hover:shadow-md hover:scale-[1.02] transition-all duration-200">
           <p className="text-xs font-medium text-muted-foreground mb-3">
             Progreso general
           </p>
@@ -111,8 +112,8 @@ export default async function DealerDashboard() {
               style={{ width: `${progressPercent}%` }}
             />
           </div>
-        </div>
-        <div className="rounded-xl p-5 bg-card border border-border">
+        </StaggerItem>
+        <StaggerItem className={`rounded-xl p-5 bg-card border border-border border-t-2 shadow-sm hover:shadow-md hover:scale-[1.02] transition-all duration-200 ${completedCount === 6 ? 'border-t-success' : completedCount > 0 ? 'border-t-warning' : 'border-t-muted-foreground'}`}>
           <p className="text-xs font-medium text-muted-foreground mb-3">
             Secciones completadas
           </p>
@@ -139,8 +140,8 @@ export default async function DealerDashboard() {
               />
             ))}
           </div>
-        </div>
-        <div className="rounded-xl p-5 bg-card border border-border">
+        </StaggerItem>
+        <StaggerItem className={`rounded-xl p-5 bg-card border border-border border-t-2 shadow-sm hover:shadow-md hover:scale-[1.02] transition-all duration-200 ${concesionario.formulario_estado === 'completado' ? 'border-t-success' : concesionario.formulario_estado === 'en_progreso' ? 'border-t-warning' : 'border-t-muted-foreground'}`}>
           <p className="text-xs font-medium text-muted-foreground mb-3">
             Estado
           </p>
@@ -166,8 +167,8 @@ export default async function DealerDashboard() {
               )}
             </p>
           </div>
-        </div>
-      </div>
+        </StaggerItem>
+      </StaggerContainer>
 
       {/* Organigrama card (Step 0) */}
       <div className="rounded-xl bg-card border border-primary/20 p-4 sm:p-6 mb-4">
@@ -240,7 +241,7 @@ export default async function DealerDashboard() {
         <h3 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground mb-4">
           Secciones del formulario
         </h3>
-        <div className="flex flex-col gap-2">
+        <StaggerContainer className="flex flex-col gap-2">
           {FORMULARIO_SECCIONES.map((seccion) => {
             const Icon = iconMap[seccion.icono] || Target;
             const isCompleted = progreso[seccion.key];
@@ -250,60 +251,61 @@ export default async function DealerDashboard() {
                 : seccion.requiere && !progreso[seccion.requiere];
 
             return (
-              <Link
-                key={seccion.id}
-                href={
-                  isBlocked
-                    ? `/inicio`
-                    : `/formulario/${seccion.id}`
-                }
-                aria-disabled={isBlocked || undefined}
-                className={`flex items-center gap-3 sm:gap-4 p-3 sm:p-4 rounded-lg border transition-colors ${
-                  isCompleted
-                    ? "border-success/30 bg-success/5"
-                    : isBlocked
-                      ? "border-border opacity-50 cursor-not-allowed"
-                      : "border-border hover:border-primary/30 hover:bg-accent"
-                }`}
-              >
-                <div
-                  className={`flex items-center justify-center w-10 h-10 rounded-lg ${
+              <StaggerItem key={seccion.id}>
+                <Link
+                  href={
+                    isBlocked
+                      ? `/inicio`
+                      : `/formulario/${seccion.id}`
+                  }
+                  aria-disabled={isBlocked || undefined}
+                  className={`flex items-center gap-3 sm:gap-4 p-3 sm:p-4 rounded-lg border transition-all duration-200 ${
                     isCompleted
-                      ? "bg-success/15 text-success"
+                      ? "border-success/30 bg-success/5 hover:shadow-sm"
                       : isBlocked
-                        ? "bg-muted text-muted-foreground"
-                        : "bg-primary/10 text-primary"
+                        ? "border-border opacity-50 cursor-not-allowed"
+                        : "border-border hover:border-primary/20 hover:shadow-sm hover:bg-accent"
                   }`}
                 >
-                  {isBlocked ? (
-                    <Lock size={18} />
-                  ) : isCompleted ? (
-                    <Check size={18} />
-                  ) : (
-                    <Icon size={18} />
-                  )}
-                </div>
-                <div className="flex-1">
-                  <p className="text-sm font-medium">
-                    Sección {seccion.id}: {seccion.titulo}
-                  </p>
-                  {isBlocked && (
-                    <p className="text-xs text-muted-foreground">
-                      {seccion.requiere === "organigrama"
-                        ? "Requiere organigrama aprobado"
-                        : "Complete primero la Sección 2"}
+                  <div
+                    className={`flex items-center justify-center w-10 h-10 rounded-lg ${
+                      isCompleted
+                        ? "bg-success/15 text-success"
+                        : isBlocked
+                          ? "bg-muted text-muted-foreground"
+                          : "bg-primary/10 text-primary"
+                    }`}
+                  >
+                    {isBlocked ? (
+                      <Lock size={18} />
+                    ) : isCompleted ? (
+                      <Check size={18} />
+                    ) : (
+                      <Icon size={18} />
+                    )}
+                  </div>
+                  <div className="flex-1">
+                    <p className="text-sm font-medium">
+                      Sección {seccion.id}: {seccion.titulo}
                     </p>
+                    {isBlocked && (
+                      <p className="text-xs text-muted-foreground">
+                        {seccion.requiere === "organigrama"
+                          ? "Requiere organigrama aprobado"
+                          : "Complete primero la Sección 2"}
+                      </p>
+                    )}
+                  </div>
+                  {isCompleted && (
+                    <span className="text-xs font-medium text-success bg-success/10 px-2 py-1 rounded">
+                      Completada
+                    </span>
                   )}
-                </div>
-                {isCompleted && (
-                  <span className="text-xs font-medium text-success bg-success/10 px-2 py-1 rounded">
-                    Completada
-                  </span>
-                )}
-              </Link>
+                </Link>
+              </StaggerItem>
             );
           })}
-        </div>
+        </StaggerContainer>
       </div>
     </div>
   );

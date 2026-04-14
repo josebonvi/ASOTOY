@@ -18,6 +18,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { ArrowRight } from "lucide-react";
+import { motion } from "framer-motion";
 
 interface SeccionNecesidadesProps {
   concesionarioId: string;
@@ -202,10 +203,15 @@ export default function SeccionNecesidades({
 
       {!readOnly && (
         <div className="flex justify-end">
-          <Button onClick={handleContinue} className="gap-2">
-            Guardar y finalizar
-            <ArrowRight size={16} />
-          </Button>
+          <motion.div
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+          >
+            <Button onClick={handleContinue} className="gap-2">
+              Guardar y finalizar
+              <ArrowRight size={16} />
+            </Button>
+          </motion.div>
         </div>
       )}
     </div>

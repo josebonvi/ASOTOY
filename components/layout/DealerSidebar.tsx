@@ -70,7 +70,9 @@ export default function DealerSidebar({
         >
           <Menu size={20} />
         </button>
-        <Image src="/logo.png" alt="ASOTOY" width={100} height={32} className="h-7 w-auto" />
+        <div className="bg-white rounded-lg px-3 py-1.5 inline-block">
+          <Image src="/logo.png" alt="ASOTOY" width={100} height={32} className="h-7 w-auto" />
+        </div>
         <span className="text-xs text-muted-foreground truncate ml-auto">{concesionarioNombre}</span>
       </div>
 
@@ -85,21 +87,23 @@ export default function DealerSidebar({
       {/* Sidebar */}
       <aside
         className={cn(
-          "fixed left-0 top-0 h-full w-64 flex flex-col z-50 bg-sidebar border-r border-sidebar-border transition-transform duration-200",
+          "fixed left-0 top-0 h-full w-80 flex flex-col z-50 bg-sidebar border-r border-sidebar-border transition-transform duration-200",
           "md:translate-x-0",
           open ? "translate-x-0" : "-translate-x-full"
         )}
       >
         {/* Logo */}
-        <div className="px-4 py-5 border-b border-sidebar-border flex items-center justify-between">
+        <div className="px-4 py-5 flex items-center justify-between">
           <div>
-            <Image
-              src="/logo.png"
-              alt="ASOTOY"
-              width={120}
-              height={40}
-              className="h-8 w-auto"
-            />
+            <div className="bg-white rounded-lg px-3 py-1.5 inline-block">
+              <Image
+                src="/logo.png"
+                alt="ASOTOY"
+                width={120}
+                height={40}
+                className="h-8 w-auto"
+              />
+            </div>
             <p className="text-xs text-muted-foreground mt-2 truncate">
               {concesionarioNombre}
             </p>
@@ -114,17 +118,24 @@ export default function DealerSidebar({
           </button>
         </div>
 
+        {/* Separador decorativo */}
+        <div className="h-px mx-4 bg-gradient-to-r from-transparent via-border to-transparent" />
+
         {/* Dashboard link */}
         <nav className="flex-1 px-3 py-4 flex flex-col gap-1 overflow-y-auto">
           <Link
             href="/inicio"
             className={cn(
-              "flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors",
+              "relative flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200",
               pathname === "/inicio"
                 ? "bg-primary/15 text-primary border border-primary/20"
                 : "text-muted-foreground hover:text-foreground hover:bg-accent"
             )}
           >
+            {/* Indicador lateral activo */}
+            {pathname === "/inicio" && (
+              <div className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-6 bg-primary rounded-full" />
+            )}
             <LayoutDashboard size={16} />
             <span>Inicio</span>
           </Link>
@@ -133,7 +144,7 @@ export default function DealerSidebar({
           <Link
             href="/organigrama"
             className={cn(
-              "flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors",
+              "relative flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200",
               pathname === "/organigrama"
                 ? "bg-primary/15 text-primary border border-primary/20"
                 : progreso.organigrama
@@ -141,6 +152,10 @@ export default function DealerSidebar({
                   : "text-muted-foreground hover:text-foreground hover:bg-accent"
             )}
           >
+            {/* Indicador lateral activo */}
+            {pathname === "/organigrama" && (
+              <div className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-6 bg-primary rounded-full" />
+            )}
             <div className="relative">
               {progreso.organigrama ? (
                 <Check size={16} />
@@ -148,7 +163,7 @@ export default function DealerSidebar({
                 <GitBranch size={16} />
               )}
             </div>
-            <span className="flex-1 truncate">Organigrama</span>
+            <span className="flex-1 whitespace-nowrap">Organigrama</span>
             {progreso.organigrama ? (
               <Check size={14} className="text-success" />
             ) : (
@@ -178,7 +193,7 @@ export default function DealerSidebar({
                     : `/formulario/${seccion.id}`
                 }
                 className={cn(
-                  "flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors",
+                  "relative flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200",
                   isActive &&
                     "bg-primary/15 text-primary border border-primary/20",
                   isCompleted &&
@@ -193,6 +208,10 @@ export default function DealerSidebar({
                 )}
                 onClick={(e) => isBlocked && e.preventDefault()}
               >
+                {/* Indicador lateral activo */}
+                {isActive && (
+                  <div className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-6 bg-primary rounded-full" />
+                )}
                 <div className="relative">
                   {isBlocked ? (
                     <Lock size={16} />
@@ -202,7 +221,7 @@ export default function DealerSidebar({
                     <Icon size={16} />
                   )}
                 </div>
-                <span className="flex-1 truncate">{seccion.titulo}</span>
+                <span className="flex-1 whitespace-nowrap">{seccion.titulo}</span>
                 <span
                   className={cn(
                     "text-xs font-mono",
@@ -223,7 +242,7 @@ export default function DealerSidebar({
                 {completedCount}/6
               </span>
             </div>
-            <div className="h-1.5 bg-muted rounded-full overflow-hidden">
+            <div className="h-2.5 bg-muted rounded-full overflow-hidden">
               <div
                 className="h-full bg-primary rounded-full transition-all duration-500"
                 style={{ width: `${(completedCount / 6) * 100}%` }}
@@ -232,12 +251,12 @@ export default function DealerSidebar({
           </div>
         </nav>
 
-        {/* Logout */}
+        {/* Footer */}
         <div className="px-3 pb-4">
           <button
             type="button"
             onClick={handleLogout}
-            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors"
+            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-all duration-200"
           >
             <LogOut size={16} />
             <span>Cerrar sesión</span>

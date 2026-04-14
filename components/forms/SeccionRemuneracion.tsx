@@ -21,6 +21,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { ArrowRight, AlertTriangle } from "lucide-react";
+import { motion } from "framer-motion";
 
 const rangoColumns: ColumnConfig[] = [
   { key: "cargo_nombre", label: "Cargo", type: "text", readOnly: true },
@@ -28,14 +29,14 @@ const rangoColumns: ColumnConfig[] = [
     key: "salario_min",
     label: "Salario mín.",
     type: "number",
-    placeholder: "0",
+    placeholder: "Ej: 400",
     width: "120px",
   },
   {
     key: "salario_max",
     label: "Salario máx.",
     type: "number",
-    placeholder: "0",
+    placeholder: "Ej: 800",
     width: "120px",
   },
   {
@@ -327,10 +328,15 @@ export default function SeccionRemuneracion({
 
       {!readOnly && (
         <div className="flex justify-end">
-          <Button onClick={handleContinue} className="gap-2">
-            Guardar y continuar
-            <ArrowRight size={16} />
-          </Button>
+          <motion.div
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+          >
+            <Button onClick={handleContinue} className="gap-2">
+              Guardar y continuar
+              <ArrowRight size={16} />
+            </Button>
+          </motion.div>
         </div>
       )}
     </div>

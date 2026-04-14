@@ -6,6 +6,7 @@ import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
 import { CheckCircle2, Send, ArrowLeft } from "lucide-react";
 import Link from "next/link";
+import { motion } from "framer-motion";
 import type { FormularioProgreso } from "@/lib/types";
 
 export default function ConfirmacionPage() {
@@ -62,19 +63,26 @@ export default function ConfirmacionPage() {
   if (isCompleted) {
     return (
       <div className="max-w-2xl mx-auto text-center py-16">
-        <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-success/15 mb-6">
+        <motion.div
+          initial={{ scale: 0, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          transition={{ type: "spring", stiffness: 200, damping: 15 }}
+          className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-success/15 mb-6"
+        >
           <CheckCircle2 size={40} className="text-success" />
-        </div>
+        </motion.div>
         <h1 className="text-2xl font-bold mb-2">
           ¡Formulario enviado exitosamente!
         </h1>
         <p className="text-muted-foreground mb-2">
           Gracias, <span className="font-semibold text-foreground">{nombre}</span>.
         </p>
-        <p className="text-sm text-muted-foreground mb-8">
+        <p className="text-sm text-muted-foreground mb-4">
           Su información ha sido recibida y será procesada por el equipo de
-          ASOTOY. Los resultados agregados del estudio serán compartidos una vez
-          se complete la recolección de datos de toda la red.
+          ASOTOY.
+        </p>
+        <p className="text-sm text-muted-foreground mb-8">
+          Los resultados del estudio serán compartidos con todos los concesionarios participantes una vez completemos la recolección en toda la red.
         </p>
         <Link href="/inicio">
           <Button variant="outline">
@@ -91,7 +99,7 @@ export default function ConfirmacionPage() {
       <div className="max-w-2xl mx-auto text-center py-16">
         <h1 className="text-2xl font-bold mb-2">Formulario incompleto</h1>
         <p className="text-muted-foreground mb-6">
-          Debe completar las 5 secciones antes de enviar el formulario.
+          Aún faltan secciones por completar. Regrese al inicio para ver cuáles.
         </p>
         <Link href="/inicio">
           <Button variant="outline">

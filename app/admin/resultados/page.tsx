@@ -245,7 +245,7 @@ export default async function ResultadosPage() {
   };
 
   return (
-    <div className="max-w-6xl">
+    <div className="max-w-6xl mx-auto w-full">
       <h1 className="text-2xl font-bold mb-1">Resultados</h1>
       <p className="text-sm text-muted-foreground mb-6">
         Dashboards agregados del estudio de remuneracion

@@ -6,7 +6,7 @@ import { getNivelToyotaLabel } from "@/lib/constants";
 import { Button } from "@/components/ui/button";
 import { Download, FileText, Loader2 } from "lucide-react";
 
-type ExportType = "concesionarios" | "cargos" | "rangos" | "necesidades";
+type ExportType = "concesionarios" | "cargos" | "rangos" | "necesidades" | "perfiles";
 
 const EXPORTS: { id: ExportType; label: string; desc: string }[] = [
   {
@@ -28,6 +28,11 @@ const EXPORTS: { id: ExportType; label: string; desc: string }[] = [
     id: "necesidades",
     label: "Necesidades y brechas",
     desc: "Habilidades escasas y necesidades de capacitación",
+  },
+  {
+    id: "perfiles",
+    label: "Perfiles de talento",
+    desc: "Requisitos de educación, experiencia y habilidades por cargo",
   },
 ];
 
@@ -121,6 +126,29 @@ export default function ExportarPage() {
           concesionario: concMap[r.concesionario_id] ?? r.concesionario_id,
           ...r,
         })) as Record<string, unknown>[];
+      } else if (type === "perfiles") {
+        const { data } = await supabase
+          .from("perfiles_talento")
+          .select("concesionario_id, cargo_id, educacion_minima, experiencia_anios, habilidades_tecnicas, habilidades_blandas, certificaciones_requeridas, idiomas, otros_requisitos");
+        const { data: concs } = await supabase
+          .from("concesionarios")
+          .select("id, nombre");
+        const { data: cargos } = await supabase
+          .from("cargos")
+          .select("id, nombre_cargo");
+        const concMap = Object.fromEntries((concs ?? []).map((c) => [c.id, c.nombre]));
+        const cargoMap = Object.fromEntries((cargos ?? []).map((c) => [c.id, c.nombre_cargo]));
+        rows = (data ?? []).map((r) => ({
+          concesionario: concMap[r.concesionario_id] ?? r.concesionario_id,
+          cargo: cargoMap[r.cargo_id] ?? r.cargo_id,
+          educacion_minima: r.educacion_minima,
+          experiencia_anios: r.experiencia_anios,
+          habilidades_tecnicas: r.habilidades_tecnicas,
+          habilidades_blandas: r.habilidades_blandas,
+          certificaciones_requeridas: r.certificaciones_requeridas,
+          idiomas: r.idiomas,
+          otros_requisitos: r.otros_requisitos,
+        })) as Record<string, unknown>[];
       }
 
       const csv = toCsv(rows);
@@ -136,7 +164,7 @@ export default function ExportarPage() {
   }
 
   return (
-    <div className="max-w-3xl">
+    <div className="max-w-3xl mx-auto w-full">
       <div className="mb-6">
         <h1 className="text-2xl font-bold">Exportar data</h1>
         <p className="text-sm text-muted-foreground mt-1">

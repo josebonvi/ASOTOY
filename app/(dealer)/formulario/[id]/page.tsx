@@ -7,6 +7,16 @@ import SeccionCargos from "@/components/forms/SeccionCargos";
 import SeccionRemuneracion from "@/components/forms/SeccionRemuneracion";
 import SeccionTalento from "@/components/forms/SeccionTalento";
 import SeccionNecesidades from "@/components/forms/SeccionNecesidades";
+import { ProgressStepper } from "@/components/shared/ProgressStepper";
+import { FadeIn } from "@/components/shared/FadeIn";
+
+const sectionDescriptions: Record<number, string> = {
+  1: "Confirme los datos basicos de su concesionario. Esta informacion nos permite organizar los resultados por zona geografica.",
+  2: "Revise los cargos de su departamento. Estos fueron pre-cargados desde su organigrama para facilitarle el trabajo.",
+  3: "Indique los rangos salariales para cada cargo. Toda la informacion es estrictamente confidencial y se reporta en promedios agregados.",
+  4: "Describa el perfil ideal para cada cargo. Esto nos permite identificar oportunidades de formacion en la red.",
+  5: "Cuentenos que necesita su equipo. Estas respuestas alimentan directamente el programa ASOTOY College.",
+};
 
 export default async function FormularioSeccionPage({
   params,
@@ -138,19 +148,38 @@ export default async function FormularioSeccionPage({
   const seccion = FORMULARIO_SECCIONES.find((s) => s.id === seccionId);
 
   return (
-    <div className="max-w-4xl">
-      <div className="mb-6">
-        <p className="text-xs font-semibold uppercase tracking-wider text-primary mb-1">
-          Sección {seccionId} de 5
-        </p>
-        <h1 className="text-2xl font-bold">{seccion?.titulo}</h1>
-        {isCompleted && (
-          <p className="text-sm text-warning mt-2">
-            El formulario ya fue enviado. Los datos son de solo lectura.
-          </p>
-        )}
+    <div className="max-w-4xl mx-auto w-full">
+      {/* Progress Stepper */}
+      <div className="mb-8">
+        <ProgressStepper currentSection={seccionId} progreso={progreso} />
       </div>
-      {sectionComponents[seccionId]}
+
+      {/* Section Header with Description */}
+      <FadeIn>
+        <div className="mb-8 relative">
+          {/* Decorative section number */}
+          <span className="absolute -left-2 -top-4 text-6xl font-bold text-primary/10 select-none pointer-events-none">
+            {seccionId}
+          </span>
+
+          <div className="relative pl-8 sm:pl-12">
+            <p className="text-xs font-semibold uppercase tracking-wider text-primary mb-1">
+              Seccion {seccionId} de 5
+            </p>
+            <h1 className="text-xl font-semibold mb-2">{seccion?.titulo}</h1>
+            <p className="text-sm text-muted-foreground leading-relaxed">
+              {sectionDescriptions[seccionId]}
+            </p>
+            {isCompleted && (
+              <p className="text-sm text-warning mt-3">
+                El formulario ya fue enviado. Los datos son de solo lectura.
+              </p>
+            )}
+          </div>
+        </div>
+
+        {sectionComponents[seccionId]}
+      </FadeIn>
     </div>
   );
 }

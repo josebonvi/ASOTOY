@@ -21,7 +21,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, Lock } from "lucide-react";
+import { motion } from "framer-motion";
 
 const areaColumns: ColumnConfig[] = [
   {
@@ -58,6 +59,12 @@ export default function SeccionDatos({
   const [zona, setZona] = useState(concesionario.zona ?? "");
   const [estado, setEstado] = useState(concesionario.estado ?? "");
   const [ciudad, setCiudad] = useState(concesionario.ciudad ?? "");
+
+  // Campos que vienen pre-llenados de la DB son de solo lectura
+  const nombreReadOnly = Boolean(concesionario.nombre);
+  const zonaReadOnly = Boolean(concesionario.zona);
+  const estadoReadOnly = Boolean(concesionario.estado);
+  const ciudadReadOnly = Boolean(concesionario.ciudad);
   const [numEmpleados, setNumEmpleados] = useState<number | "">(
     concesionario.num_empleados ?? ""
   );
@@ -141,41 +148,52 @@ export default function SeccionDatos({
 
   return (
     <div className="space-y-6">
-      {/* Save indicator */}
-      <div className="flex justify-end">
-        <SaveIndicator status={status} />
-      </div>
+      {/* Save indicator (flotante) */}
+      <SaveIndicator status={status} />
 
       {/* Basic info */}
       <div className="rounded-xl bg-card border border-border p-6 space-y-4">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="space-y-2">
-            <Label htmlFor="nombre">Nombre del concesionario *</Label>
+            <Label htmlFor="nombre" className="flex items-center gap-1">
+              Nombre del concesionario *
+              {nombreReadOnly && <Lock size={12} className="text-muted-foreground" />}
+            </Label>
             <Input
               id="nombre"
               value={nombre}
               onChange={(e) => setNombre(e.target.value)}
               disabled={readOnly}
+              readOnly={nombreReadOnly}
+              className={nombreReadOnly ? "opacity-70" : ""}
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="zona">Zona geográfica</Label>
+            <Label htmlFor="zona" className="flex items-center gap-1">
+              Zona geográfica
+              {zonaReadOnly && <Lock size={12} className="text-muted-foreground" />}
+            </Label>
             <Input
               id="zona"
               value={zona}
               onChange={(e) => setZona(e.target.value)}
               placeholder="Ej: Central, Occidente, Oriente"
               disabled={readOnly}
+              readOnly={zonaReadOnly}
+              className={zonaReadOnly ? "opacity-70" : ""}
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="estado">Estado *</Label>
+            <Label htmlFor="estado" className="flex items-center gap-1">
+              Estado *
+              {estadoReadOnly && <Lock size={12} className="text-muted-foreground" />}
+            </Label>
             <Select
               value={estado || null}
               onValueChange={(v) => setEstado(v ?? "")}
-              disabled={readOnly}
+              disabled={readOnly || estadoReadOnly}
             >
-              <SelectTrigger className="w-full">
+              <SelectTrigger className={`w-full ${estadoReadOnly ? "opacity-70" : ""}`}>
                 <SelectValue placeholder="Seleccionar estado..." />
               </SelectTrigger>
               <SelectContent>
@@ -188,13 +206,18 @@ export default function SeccionDatos({
             </Select>
           </div>
           <div className="space-y-2">
-            <Label htmlFor="ciudad">Ciudad</Label>
+            <Label htmlFor="ciudad" className="flex items-center gap-1">
+              Ciudad
+              {ciudadReadOnly && <Lock size={12} className="text-muted-foreground" />}
+            </Label>
             <Input
               id="ciudad"
               value={ciudad}
               onChange={(e) => setCiudad(e.target.value)}
               placeholder="Ej: Caracas, Valencia"
               disabled={readOnly}
+              readOnly={ciudadReadOnly}
+              className={ciudadReadOnly ? "opacity-70" : ""}
             />
           </div>
           <div className="space-y-2">
@@ -263,10 +286,15 @@ export default function SeccionDatos({
       {/* Continue button */}
       {!readOnly && (
         <div className="flex justify-end">
-          <Button onClick={handleContinue} className="gap-2">
-            Guardar y continuar
-            <ArrowRight size={16} />
-          </Button>
+          <motion.div
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+          >
+            <Button onClick={handleContinue} className="gap-2">
+              Guardar y continuar
+              <ArrowRight size={16} />
+            </Button>
+          </motion.div>
         </div>
       )}
     </div>

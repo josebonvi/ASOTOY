@@ -52,7 +52,9 @@ export default function AdminSidebar() {
         >
           <Menu size={20} />
         </button>
-        <Image src="/logo.png" alt="ASOTOY" width={100} height={32} className="h-7 w-auto" />
+        <div className="bg-white rounded-lg px-3 py-1.5 inline-block">
+          <Image src="/logo.png" alt="ASOTOY" width={100} height={32} className="h-7 w-auto" />
+        </div>
       </div>
 
       {/* Overlay */}
@@ -66,21 +68,23 @@ export default function AdminSidebar() {
       {/* Sidebar */}
       <aside
         className={cn(
-          "fixed left-0 top-0 h-full w-64 flex flex-col z-50 bg-sidebar border-r border-sidebar-border transition-transform duration-200",
+          "fixed left-0 top-0 h-full w-80 flex flex-col z-50 bg-sidebar border-r border-sidebar-border transition-transform duration-200",
           "md:translate-x-0",
           open ? "translate-x-0" : "-translate-x-full"
         )}
       >
         {/* Logo */}
-        <div className="px-4 py-5 border-b border-sidebar-border flex items-center justify-between">
+        <div className="px-4 py-5 flex items-center justify-between">
           <div>
-            <Image
-              src="/logo.png"
-              alt="ASOTOY"
-              width={120}
-              height={40}
-              className="h-8 w-auto"
-            />
+            <div className="bg-white rounded-lg px-3 py-1.5 inline-block">
+              <Image
+                src="/logo.png"
+                alt="ASOTOY"
+                width={120}
+                height={40}
+                className="h-8 w-auto"
+              />
+            </div>
             <p className="text-xs text-muted-foreground mt-2">
               Panel Administrativo
             </p>
@@ -94,6 +98,9 @@ export default function AdminSidebar() {
           </button>
         </div>
 
+        {/* Separador decorativo */}
+        <div className="h-px mx-4 bg-gradient-to-r from-transparent via-border to-transparent" />
+
         {/* Nav */}
         <nav className="flex-1 px-3 py-4 flex flex-col gap-1">
           {navItems.map(({ href, label, icon: Icon }) => {
@@ -104,12 +111,16 @@ export default function AdminSidebar() {
                 key={href}
                 href={href}
                 className={cn(
-                  "flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors",
+                  "relative flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200",
                   active
                     ? "bg-primary/15 text-primary border border-primary/20"
                     : "text-muted-foreground hover:text-foreground hover:bg-accent"
                 )}
               >
+                {/* Indicador lateral activo */}
+                {active && (
+                  <div className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-6 bg-primary rounded-full" />
+                )}
                 <Icon size={16} />
                 <span>{label}</span>
               </Link>
@@ -117,11 +128,11 @@ export default function AdminSidebar() {
           })}
         </nav>
 
-        {/* Logout */}
+        {/* Footer */}
         <div className="px-3 pb-4">
           <button
             onClick={handleLogout}
-            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors"
+            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-all duration-200"
           >
             <LogOut size={16} />
             <span>Cerrar sesión</span>
