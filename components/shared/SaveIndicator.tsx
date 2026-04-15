@@ -29,10 +29,13 @@ export function SaveIndicator({ status }: SaveIndicatorProps) {
     <AnimatePresence>
       {visible && (
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: 20 }}
-          transition={{ duration: 0.2 }}
+          initial={{ opacity: 0, x: 20 }}
+          animate={{ opacity: 1, x: 0 }}
+          exit={{ opacity: 0, x: 20 }}
+          transition={{
+            duration: 0.25,
+            ease: [0.25, 0.1, 0.25, 1]
+          }}
           className="fixed bottom-4 right-4 z-50 flex items-center gap-2 px-4 py-2 rounded-lg bg-card border border-border shadow-lg text-sm"
         >
           {status === "saving" && (
@@ -42,10 +45,19 @@ export function SaveIndicator({ status }: SaveIndicatorProps) {
             </>
           )}
           {status === "saved" && (
-            <>
+            <motion.div
+              className="flex items-center gap-2"
+              initial={{ scale: 0.9 }}
+              animate={{ scale: 1 }}
+              transition={{
+                type: "spring",
+                stiffness: 200,
+                damping: 15
+              }}
+            >
               <Check size={14} className="text-green-500" />
               <span className="text-green-500">Guardado</span>
-            </>
+            </motion.div>
           )}
           {status === "error" && (
             <>

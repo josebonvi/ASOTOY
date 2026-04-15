@@ -70,8 +70,9 @@ export default function DealerSidebar({
         >
           <Menu size={20} />
         </button>
-        <div className="bg-white rounded-lg px-3 py-1.5 inline-block">
-          <Image src="/logo.png" alt="ASOTOY" width={100} height={32} className="h-7 w-auto" />
+        <div className="flex items-center gap-2">
+          <Image src="/logo-icon.png" alt="ASOTOY" width={32} height={32} className="h-8 w-auto" />
+          <span className="text-sm font-bold tracking-wider text-white">ASOTOY</span>
         </div>
         <span className="text-xs text-muted-foreground truncate ml-auto">{concesionarioNombre}</span>
       </div>
@@ -95,14 +96,15 @@ export default function DealerSidebar({
         {/* Logo */}
         <div className="px-4 py-5 flex items-center justify-between">
           <div>
-            <div className="bg-white rounded-lg px-3 py-1.5 inline-block">
+            <div className="flex items-center gap-3">
               <Image
-                src="/logo.png"
+                src="/logo-icon.png"
                 alt="ASOTOY"
-                width={120}
+                width={40}
                 height={40}
-                className="h-8 w-auto"
+                className="h-10 w-auto"
               />
+              <span className="text-sm font-bold tracking-wider text-white">ASOTOY</span>
             </div>
             <p className="text-xs text-muted-foreground mt-2 truncate">
               {concesionarioNombre}

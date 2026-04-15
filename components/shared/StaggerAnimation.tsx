@@ -1,22 +1,25 @@
 "use client";
 
-import { motion, type Variants } from "framer-motion";
+import { motion } from "framer-motion";
 
-const containerVariants: Variants = {
+const container = {
   hidden: {},
-  visible: {
+  show: {
     transition: {
-      staggerChildren: 0.05
+      staggerChildren: 0.06
     }
   }
 };
 
-const itemVariants: Variants = {
-  hidden: { opacity: 0.4, y: 6 },
-  visible: {
+const item = {
+  hidden: { opacity: 0, y: 12 },
+  show: {
     opacity: 1,
     y: 0,
-    transition: { duration: 0.2 }
+    transition: {
+      duration: 0.3,
+      ease: [0.25, 0.1, 0.25, 1] as [number, number, number, number]
+    }
   }
 };
 
@@ -28,9 +31,9 @@ interface StaggerContainerProps {
 export function StaggerContainer({ children, className }: StaggerContainerProps) {
   return (
     <motion.div
-      variants={containerVariants}
+      variants={container}
       initial="hidden"
-      animate="visible"
+      animate="show"
       className={className}
     >
       {children}
@@ -45,7 +48,7 @@ interface StaggerItemProps {
 
 export function StaggerItem({ children, className }: StaggerItemProps) {
   return (
-    <motion.div variants={itemVariants} className={className}>
+    <motion.div variants={item} className={className}>
       {children}
     </motion.div>
   );

@@ -39,17 +39,38 @@ export function ProgressStepper({ currentSection, progreso }: ProgressStepperPro
               {/* Step circle */}
               <div className="flex flex-col items-center">
                 <motion.div
-                  layout
-                  transition={{ duration: 0.3 }}
+                  initial={false}
+                  animate={{
+                    scale: isCurrent ? 1.1 : 1,
+                    backgroundColor: isCompleted && !isCurrent
+                      ? "rgba(34, 197, 94, 0.15)"
+                      : isCurrent
+                        ? "rgba(204, 0, 0, 0.15)"
+                        : "transparent",
+                  }}
+                  transition={{
+                    duration: 0.3,
+                    ease: [0.23, 1, 0.32, 1]
+                  }}
                   className={cn(
-                    "w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium transition-colors",
-                    isCurrent && "border-2 border-primary bg-primary/15 text-primary",
-                    isCompleted && !isCurrent && "bg-success/15 text-success",
-                    isFuture && "border border-muted-foreground/30 bg-transparent text-muted-foreground/50"
+                    "w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium",
+                    isCurrent && "border-2 border-primary text-primary",
+                    isCompleted && !isCurrent && "text-success",
+                    isFuture && "border border-muted-foreground/30 text-muted-foreground/50"
                   )}
                 >
                   {isCompleted && !isCurrent ? (
-                    <Check className="w-4 h-4 text-success" />
+                    <motion.div
+                      initial={{ scale: 0 }}
+                      animate={{ scale: 1 }}
+                      transition={{
+                        type: "spring",
+                        stiffness: 200,
+                        damping: 15
+                      }}
+                    >
+                      <Check className="w-4 h-4 text-success" />
+                    </motion.div>
                   ) : (
                     <span>{step.id === 0 ? "O" : step.id}</span>
                   )}
@@ -57,7 +78,7 @@ export function ProgressStepper({ currentSection, progreso }: ProgressStepperPro
                 {/* Label - hidden on mobile */}
                 <span
                   className={cn(
-                    "hidden sm:block mt-2 text-xs font-medium text-center",
+                    "hidden sm:block mt-2 text-xs font-medium text-center transition-colors duration-300",
                     isCurrent && "text-primary",
                     isCompleted && !isCurrent && "text-success",
                     isFuture && "text-muted-foreground/50"
@@ -69,11 +90,15 @@ export function ProgressStepper({ currentSection, progreso }: ProgressStepperPro
 
               {/* Connector line */}
               {index < steps.length - 1 && (
-                <div
-                  className={cn(
-                    "flex-1 h-0.5 mx-2 sm:mx-3",
-                    isCompleted ? "bg-success/40" : "bg-border"
-                  )}
+                <motion.div
+                  initial={false}
+                  animate={{
+                    backgroundColor: isCompleted
+                      ? "rgba(34, 197, 94, 0.4)"
+                      : "var(--border)"
+                  }}
+                  transition={{ duration: 0.3 }}
+                  className="flex-1 h-0.5 mx-2 sm:mx-3"
                 />
               )}
             </div>

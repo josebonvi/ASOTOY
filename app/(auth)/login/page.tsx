@@ -53,110 +53,323 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center p-4 bg-background relative before:absolute before:inset-0 before:bg-[linear-gradient(to_right,rgba(255,255,255,0.03)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.03)_1px,transparent_1px)] before:bg-[size:40px_40px] before:pointer-events-none">
-      {/* Background glow — red ASOTOY */}
-      <div
-        className="fixed inset-0 pointer-events-none"
-        style={{
-          background:
-            "radial-gradient(ellipse 60% 40% at 50% 0%, oklch(0.50 0.22 29 / 12%) 0%, transparent 70%)",
-        }}
-      />
+    <>
+      {/* CSS Keyframes for animations */}
+      <style jsx global>{`
+        @keyframes shimmer {
+          0% {
+            background-position: -200% 0;
+          }
+          100% {
+            background-position: 200% 0;
+          }
+        }
 
-      <div className="w-full max-w-sm relative z-10 flex-1 flex flex-col justify-center">
-        {/* Logo */}
-        <div className="text-center mb-8">
-          <div className="flex justify-center mb-4">
-            <div className="bg-white rounded-lg px-5 py-3 inline-block shadow-lg" style={{ boxShadow: "0 0 60px oklch(0.50 0.22 29 / 12%)" }}>
-              <Image
-                src="/logo.png"
-                alt="ASOTOY"
-                width={240}
-                height={80}
-                priority
-                className="h-20 w-auto"
-              />
-            </div>
-          </div>
-          <p className="text-sm text-muted-foreground">
-            Portal de Remuneración — Red de Concesionarios Toyota Venezuela
-          </p>
-        </div>
+        @keyframes float1 {
+          0%, 100% {
+            transform: translateY(0px);
+          }
+          50% {
+            transform: translateY(-20px);
+          }
+        }
 
-        {/* Card con animación */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, ease: "easeOut" }}
-          className="rounded-xl p-6 bg-card border border-border"
-        >
-          {/* Red accent line */}
-          <div className="h-1 bg-primary rounded-full -mt-6 mx-auto mb-6 w-16" />
+        @keyframes float2 {
+          0%, 100% {
+            transform: translateY(0px);
+          }
+          50% {
+            transform: translateY(-15px);
+          }
+        }
 
-          <h2 className="text-lg font-semibold mb-1">Iniciar sesión</h2>
-          <p className="text-sm text-muted-foreground mb-6">
-            Accede con las credenciales de tu concesionario
-          </p>
+        @keyframes float3 {
+          0%, 100% {
+            transform: translateY(0px);
+          }
+          50% {
+            transform: translateY(-25px);
+          }
+        }
 
-          <form onSubmit={handleLogin} className="flex flex-col gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="email">Correo electrónico</Label>
-              <Input
-                id="email"
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="correo@concesionario.com"
-                required
-                autoComplete="email"
-              />
-            </div>
+        @keyframes float4 {
+          0%, 100% {
+            transform: translateY(0px);
+          }
+          50% {
+            transform: translateY(-18px);
+          }
+        }
 
-            <div className="space-y-2">
-              <Label htmlFor="password">Contraseña</Label>
-              <Input
-                id="password"
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="••••••••"
-                required
-                autoComplete="current-password"
-              />
-            </div>
+        @keyframes float5 {
+          0%, 100% {
+            transform: translateY(0px);
+          }
+          50% {
+            transform: translateY(-22px);
+          }
+        }
 
-            {error && (
-              <div className="rounded-lg px-4 py-3 text-sm bg-destructive/10 border border-destructive/20 text-destructive">
-                {error}
+        .shimmer-border {
+          background: linear-gradient(
+            90deg,
+            transparent 0%,
+            transparent 40%,
+            oklch(0.50 0.22 29 / 20%) 50%,
+            transparent 60%,
+            transparent 100%
+          );
+          background-size: 200% 100%;
+          animation: shimmer 3s linear infinite;
+        }
+
+        .input-glow:focus {
+          box-shadow: 0 0 15px oklch(0.50 0.22 29 / 10%);
+        }
+
+        .button-glow:hover {
+          box-shadow: 0 0 25px oklch(0.50 0.22 29 / 30%);
+        }
+      `}</style>
+
+      {/* Background - appears first */}
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.3 }}
+        className="fixed inset-0"
+        style={{ background: "#0a0a0a" }}
+      >
+        {/* Grid pattern */}
+        <div
+          className="absolute inset-0 pointer-events-none"
+          style={{
+            backgroundImage: `
+              linear-gradient(to right, oklch(1 0 0 / 2%) 1px, transparent 1px),
+              linear-gradient(to bottom, oklch(1 0 0 / 2%) 1px, transparent 1px)
+            `,
+            backgroundSize: "60px 60px",
+          }}
+        />
+
+        {/* Red radial glow top */}
+        <div
+          className="absolute inset-0 pointer-events-none"
+          style={{
+            background: "radial-gradient(ellipse 70% 50% at 50% 0%, oklch(0.50 0.22 29 / 8%) 0%, transparent 60%)",
+          }}
+        />
+
+        {/* Vignette edges */}
+        <div
+          className="absolute inset-0 pointer-events-none"
+          style={{
+            background: "radial-gradient(ellipse 100% 100% at 50% 50%, transparent 40%, oklch(0 0 0 / 60%) 100%)",
+          }}
+        />
+
+        {/* Floating particles */}
+        <div
+          className="absolute pointer-events-none rounded-full"
+          style={{
+            width: "3px",
+            height: "3px",
+            background: "oklch(0.50 0.22 29 / 6%)",
+            top: "20%",
+            left: "15%",
+            animation: "float1 12s ease-in-out infinite",
+          }}
+        />
+        <div
+          className="absolute pointer-events-none rounded-full"
+          style={{
+            width: "2px",
+            height: "2px",
+            background: "oklch(0.50 0.22 29 / 8%)",
+            top: "60%",
+            left: "80%",
+            animation: "float2 10s ease-in-out infinite",
+          }}
+        />
+        <div
+          className="absolute pointer-events-none rounded-full"
+          style={{
+            width: "4px",
+            height: "4px",
+            background: "oklch(0.50 0.22 29 / 5%)",
+            top: "75%",
+            left: "25%",
+            animation: "float3 15s ease-in-out infinite",
+          }}
+        />
+        <div
+          className="absolute pointer-events-none rounded-full"
+          style={{
+            width: "2px",
+            height: "2px",
+            background: "oklch(0.50 0.22 29 / 7%)",
+            top: "35%",
+            left: "70%",
+            animation: "float4 8s ease-in-out infinite",
+          }}
+        />
+        <div
+          className="absolute pointer-events-none rounded-full"
+          style={{
+            width: "3px",
+            height: "3px",
+            background: "oklch(0.50 0.22 29 / 4%)",
+            top: "85%",
+            left: "60%",
+            animation: "float5 11s ease-in-out infinite",
+          }}
+        />
+      </motion.div>
+
+      {/* Content */}
+      <div className="min-h-screen flex flex-col items-center justify-center p-4 relative z-10">
+        <div className="w-full max-w-sm flex flex-col items-center">
+          {/* Logo - cinematic entrance */}
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{
+              duration: 0.5,
+              delay: 0.3,
+              ease: [0.25, 0.1, 0.25, 1]
+            }}
+            className="mb-4"
+            style={{ filter: "drop-shadow(0 0 100px oklch(0.50 0.22 29 / 20%))" }}
+          >
+            <Image
+              src="/logo-dark.png"
+              alt="ASOTOY"
+              width={320}
+              height={192}
+              priority
+              className="max-h-48 w-auto"
+            />
+          </motion.div>
+
+          {/* Red light glow emanating from logo to card */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.6, delay: 0.5 }}
+            className="w-full h-24 -mt-4 mb-0 pointer-events-none"
+            style={{
+              background: "radial-gradient(ellipse 40% 30% at 50% 0%, oklch(0.50 0.22 29 / 12%) 0%, transparent 100%)",
+            }}
+          />
+
+          {/* Glass card with shimmer border - spring entrance */}
+          <motion.div
+            initial={{ opacity: 0, y: 40 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{
+              type: "spring",
+              stiffness: 100,
+              damping: 15,
+              delay: 0.4
+            }}
+            className="relative w-full rounded-2xl p-8 -mt-12"
+            style={{
+              background: "oklch(0.12 0 0 / 80%)",
+              backdropFilter: "blur(40px)",
+              WebkitBackdropFilter: "blur(40px)",
+            }}
+          >
+            {/* Shimmer border overlay */}
+            <div
+              className="absolute inset-0 rounded-2xl pointer-events-none shimmer-border"
+              style={{
+                padding: "1px",
+                WebkitMask: "linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)",
+                WebkitMaskComposite: "xor",
+                maskComposite: "exclude",
+              }}
+            />
+
+            {/* Static border underneath */}
+            <div
+              className="absolute inset-0 rounded-2xl pointer-events-none"
+              style={{
+                border: "1px solid oklch(1 0 0 / 6%)",
+              }}
+            />
+
+            {/* Top gradient accent */}
+            <div
+              className="absolute top-0 left-8 right-8 h-px pointer-events-none"
+              style={{
+                background: "linear-gradient(to right, transparent, oklch(0.50 0.22 29 / 30%), transparent)",
+              }}
+            />
+
+            <h2 className="text-xl font-semibold text-white mb-1">Iniciar sesión</h2>
+            <p className="text-sm text-muted-foreground mb-6">
+              Accede con las credenciales de tu concesionario
+            </p>
+
+            <form onSubmit={handleLogin} className="flex flex-col gap-5">
+              <div className="space-y-2">
+                <Label htmlFor="email" className="text-white/70">Correo electrónico</Label>
+                <Input
+                  id="email"
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="correo@concesionario.com"
+                  required
+                  autoComplete="email"
+                  className="input-glow bg-white/5 border-white/10 text-white placeholder:text-white/30 focus:border-primary/40 transition-all duration-300"
+                />
               </div>
-            )}
 
-            <motion.div
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-            >
-              <Button
-                type="submit"
-                disabled={loading}
-                className="w-full mt-2 bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 hover:brightness-110 transition-all"
+              <div className="space-y-2">
+                <Label htmlFor="password" className="text-white/70">Contraseña</Label>
+                <Input
+                  id="password"
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="••••••••"
+                  required
+                  autoComplete="current-password"
+                  className="input-glow bg-white/5 border-white/10 text-white placeholder:text-white/30 focus:border-primary/40 transition-all duration-300"
+                />
+              </div>
+
+              {error && (
+                <motion.div
+                  initial={{ opacity: 0, y: -8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="rounded-lg px-4 py-3 text-sm bg-destructive/10 border border-destructive/20 text-destructive"
+                >
+                  {error}
+                </motion.div>
+              )}
+
+              <motion.div
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                transition={{ duration: 0.15 }}
               >
-                {loading ? "Ingresando..." : "Ingresar al portal"}
-              </Button>
-            </motion.div>
-          </form>
-        </motion.div>
-
-        <p className="text-center text-xs mt-6 text-muted-foreground">
-          ¿Problemas para acceder? Escriba a{" "}
-          <span className="text-foreground">soporte@asotoy.com</span>
-        </p>
-        <p className="text-center text-[10px] mt-2 text-muted-foreground/50">
-          Asociación Nacional de Concesionarios Toyota de Venezuela
-        </p>
+                <Button
+                  type="submit"
+                  disabled={loading}
+                  className="button-glow w-full py-3 h-auto text-base font-medium tracking-wide transition-all duration-300"
+                  style={{
+                    background: "linear-gradient(135deg, #CC0000 0%, #990000 100%)",
+                  }}
+                >
+                  {loading ? "Ingresando..." : "Ingresar al portal"}
+                </Button>
+              </motion.div>
+            </form>
+          </motion.div>
+        </div>
       </div>
-
-      {/* Footer */}
-      <footer className="relative z-10 pb-4" />
-    </div>
+    </>
   );
 }
