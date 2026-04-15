@@ -196,11 +196,16 @@ export default function OrganigramaProcessingClient({
     return groups;
   }, [catalogo]);
 
-  // Check if all cargos have confirmed mappings
+  // Check if all cargos have confirmed mappings.
+  // Guard: organigrama vacío nunca debe considerarse "confirmado" — .every() sobre array vacío
+  // retorna true, lo que permitiría aprobar un organigrama sin cargos y borrar toda la data del concesionario.
   const allConfirmed = useMemo(() => {
-    return orgCargos.every(
-      (c) =>
-        mappings[c.id]?.confirmado && mappings[c.id]?.catalogoToyotaId !== ""
+    return (
+      orgCargos.length > 0 &&
+      orgCargos.every(
+        (c) =>
+          mappings[c.id]?.confirmado && mappings[c.id]?.catalogoToyotaId !== ""
+      )
     );
   }, [orgCargos, mappings]);
 

@@ -21,7 +21,7 @@ export default async function AdminLayout({
     .eq("user_id", user.id)
     .single();
 
-  if (roleData?.role !== "admin") redirect("/dashboard");
+  if (roleData?.role !== "admin") redirect("/inicio");
 
   return (
     <div className="flex h-full min-h-screen bg-background">

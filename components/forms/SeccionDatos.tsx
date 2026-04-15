@@ -140,6 +140,24 @@ export default function SeccionDatos({
   });
 
   async function handleContinue() {
+    // Validación de campos obligatorios antes de avanzar
+    const errors: string[] = [];
+    if (!nombre.trim()) errors.push("Nombre del concesionario");
+    if (!estado.trim()) errors.push("Estado");
+    if (numEmpleados === "" || Number(numEmpleados) <= 0)
+      errors.push("N° de empleados");
+    const areasValidas = areas.filter(
+      (a) => String(a.nombre_area ?? "").trim().length > 0
+    );
+    if (areasValidas.length === 0) errors.push("Al menos un área");
+
+    if (errors.length > 0) {
+      alert(
+        "Faltan campos obligatorios:\n\n• " + errors.join("\n• ")
+      );
+      return;
+    }
+
     await saveToDb(formData);
     await markSectionComplete("seccion1");
     router.push("/formulario/2");

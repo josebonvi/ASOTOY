@@ -273,6 +273,17 @@ export default function SeccionCargos({
   });
 
   async function handleContinue() {
+    // Validación: al menos un cargo con al menos una persona
+    const cargosConPersonas = activeCargos.filter(
+      (c) => (c.num_personas ?? 0) > 0
+    );
+    if (cargosConPersonas.length === 0) {
+      alert(
+        "Debe agregar al menos un cargo con 1 o más personas antes de continuar. La siguiente sección (Salarios) usa estos cargos."
+      );
+      return;
+    }
+
     await saveToDb(formData);
     await markSectionComplete("seccion2");
     router.push("/formulario/3");
