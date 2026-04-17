@@ -1,6 +1,9 @@
 import { createClient } from "@/lib/supabase/server";
-import { Building2, CheckCircle2, Clock, AlertCircle, Network, FileCheck } from "lucide-react";
+import { Building2, CheckCircle2, Clock, Network } from "lucide-react";
 import Link from "next/link";
+import VenezuelaMap from "@/components/admin/VenezuelaMap";
+import CountUp from "@/components/admin/CountUp";
+import { FadeInStagger, FadeInItem } from "@/components/admin/FadeIn";
 
 function getRelativeTime(date: string): string {
   const now = Date.now();
@@ -83,41 +86,43 @@ export default async function AdminDashboard() {
       </div>
 
       {/* KPIs */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+      <FadeInStagger className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
         {kpis.map((kpi) => (
-          <div
-            key={kpi.label}
-            className={`rounded-xl p-5 bg-card border border-border border-t-2 ${kpi.borderColor} shadow-sm hover:scale-[1.02] transition-all duration-200`}
-          >
-            <div className="flex items-center justify-between mb-3">
-              <p className="text-xs font-medium text-muted-foreground">
-                {kpi.label}
+          <FadeInItem key={kpi.label}>
+            <div
+              className={`rounded-xl p-5 bg-card border border-border border-t-2 ${kpi.borderColor} shadow-sm hover:scale-[1.02] hover:shadow-md transition-all duration-200`}
+            >
+              <div className="flex items-center justify-between mb-3">
+                <p className="text-xs font-medium text-muted-foreground">
+                  {kpi.label}
+                </p>
+                <kpi.icon size={16} className="text-muted-foreground" />
+              </div>
+              <p className={`text-3xl font-bold ${kpi.color}`}>
+                <CountUp value={kpi.value} />
               </p>
-              <kpi.icon size={16} className="text-muted-foreground" />
             </div>
-            <p className={`text-3xl font-bold ${kpi.color}`}>{kpi.value}</p>
-          </div>
+          </FadeInItem>
         ))}
-      </div>
+      </FadeInStagger>
 
       {/* Progress bar */}
       <div className="rounded-xl p-6 bg-card border border-border mb-8">
         <h3 className="text-sm font-semibold mb-4">Progreso general</h3>
         <div className="flex flex-col sm:flex-row sm:items-center gap-6">
-          {/* Porcentaje grande a la izquierda */}
           <div className="flex-shrink-0 text-center sm:text-left">
-            <p className="text-4xl font-bold text-primary">
+            <p className="text-5xl font-bold text-primary">
               {total > 0 ? Math.round((completados / total) * 100) : 0}%
             </p>
             <p className="text-xs text-muted-foreground mt-1">completado</p>
           </div>
-          {/* Barra de progreso y leyenda a la derecha */}
           <div className="flex-1">
-            <div className="h-3 bg-muted rounded-full overflow-hidden">
+            <div className="h-4 bg-muted rounded-full overflow-hidden">
               <div
-                className="h-full bg-primary rounded-full transition-all duration-700"
+                className="h-full rounded-full transition-all duration-700"
                 style={{
                   width: `${total > 0 ? (completados / total) * 100 : 0}%`,
+                  background: "linear-gradient(90deg, #CC0000, #FF3333)",
                 }}
               />
             </div>
@@ -136,6 +141,38 @@ export default async function AdminDashboard() {
               </span>
             </div>
           </div>
+        </div>
+      </div>
+
+      {/* Mapa de Venezuela */}
+      <div
+        className="rounded-xl bg-card border border-border mb-8"
+        style={{ boxShadow: "0 0 80px rgba(204,0,0,0.05)" }}
+      >
+        <div className="p-6 pb-0">
+          <h3 className="text-lg font-semibold">Red de Concesionarios</h3>
+          <p className="text-sm text-muted-foreground mt-1 mb-4">
+            {total} concesionarios en{" "}
+            {new Set(
+              (concesionarios ?? [])
+                .map((c) => c.estado as string | null)
+                .filter(Boolean)
+            ).size}{" "}
+            estados
+          </p>
+        </div>
+        <div className="px-2 pb-4">
+          <VenezuelaMap
+            concesionarios={(concesionarios ?? []).map((c) => ({
+              id: c.id as string,
+              nombre: c.nombre as string,
+              zona: (c.zona as string) ?? null,
+              estado: (c.estado as string) ?? null,
+              formulario_estado: (c.formulario_estado as string) ?? "pendiente",
+              formulario_progreso: (c.formulario_progreso as Record<string, boolean>) ?? {},
+              organigrama_estado: (c.organigrama_estado as string) ?? "no_iniciado",
+            }))}
+          />
         </div>
       </div>
 

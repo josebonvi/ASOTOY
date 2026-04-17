@@ -91,7 +91,14 @@ function toCsv(rows: Record<string, unknown>[]): string {
 export default function ConcesionariosTable({ concesionarios }: Props) {
   const [filtro, setFiltro] = useState<FilterEstado>("todos");
   const [filtroOrg, setFiltroOrg] = useState<FilterOrganigrama>("todos_org");
+  const [filtroZona, setFiltroZona] = useState("Todas");
   const [busqueda, setBusqueda] = useState("");
+
+  const zonas = useMemo(() => {
+    const set = new Set<string>();
+    concesionarios.forEach((c) => { if (c.zona) set.add(c.zona); });
+    return ["Todas", ...Array.from(set).sort()];
+  }, [concesionarios]);
 
   const counts = useMemo(() => {
     const c = { todos: 0, completado: 0, en_progreso: 0, pendiente: 0 };
@@ -117,6 +124,9 @@ export default function ConcesionariosTable({ concesionarios }: Props) {
 
   const filtered = useMemo(() => {
     let list = concesionarios;
+    if (filtroZona !== "Todas") {
+      list = list.filter((c) => c.zona === filtroZona);
+    }
     if (filtro !== "todos") {
       list = list.filter((c) => c.formulario_estado === filtro);
     }
@@ -133,7 +143,7 @@ export default function ConcesionariosTable({ concesionarios }: Props) {
       );
     }
     return list;
-  }, [concesionarios, filtro, filtroOrg, busqueda]);
+  }, [concesionarios, filtro, filtroOrg, filtroZona, busqueda]);
 
   function handleExportCsv() {
     const rows = filtered.map((c) => {
@@ -204,6 +214,19 @@ export default function ConcesionariosTable({ concesionarios }: Props) {
       {/* Filtros + Búsqueda + Exportar */}
       <div className="flex flex-col gap-3 mb-4">
         <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
+          <div className="flex items-center gap-2 flex-wrap">
+            <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Zona</span>
+            <select
+              value={filtroZona}
+              onChange={(e) => setFiltroZona(e.target.value)}
+              className="text-xs font-medium px-3 py-1.5 rounded-lg border border-border bg-card text-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 appearance-none pr-7"
+              style={{ backgroundImage: "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E\")", backgroundRepeat: "no-repeat", backgroundPosition: "right 8px center" }}
+            >
+              {zonas.map((z) => (
+                <option key={z} value={z}>{z}</option>
+              ))}
+            </select>
+          </div>
           <div className="flex items-center gap-2 flex-wrap">
             <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Formulario</span>
             <div className="flex gap-1.5 flex-wrap">
@@ -356,7 +379,7 @@ export default function ConcesionariosTable({ concesionarios }: Props) {
                     </td>
                     <td className="px-4 py-4">
                       <span
-                        className={`text-xs font-medium px-2 py-1 rounded ${
+                        className={`inline-flex items-center gap-1.5 text-xs font-medium px-2 py-1 rounded ${
                           c.formulario_estado === "completado"
                             ? "bg-success/10 text-success"
                             : c.formulario_estado === "en_progreso"
@@ -364,15 +387,28 @@ export default function ConcesionariosTable({ concesionarios }: Props) {
                               : "bg-muted text-muted-foreground"
                         }`}
                       >
+                        <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${
+                          c.formulario_estado === "completado"
+                            ? "bg-success"
+                            : c.formulario_estado === "en_progreso"
+                              ? "bg-warning"
+                              : "bg-muted-foreground"
+                        }`} />
                         {ESTADO_LABELS[c.formulario_estado]}
                       </span>
                     </td>
                     <td className="px-4 py-4 hidden sm:table-cell">
                       <span
-                        className={`text-xs font-medium px-2 py-1 rounded ${
+                        className={`inline-flex items-center gap-1.5 text-xs font-medium px-2 py-1 rounded ${
                           ORGANIGRAMA_STYLES[c.organigrama_estado ?? "no_iniciado"]
                         }`}
                       >
+                        <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${
+                          c.organigrama_estado === "aprobado" ? "bg-success"
+                          : c.organigrama_estado === "en_revision" ? "bg-blue-400"
+                          : c.organigrama_estado === "pendiente" ? "bg-warning"
+                          : "bg-muted-foreground"
+                        }`} />
                         {ORGANIGRAMA_LABELS[c.organigrama_estado ?? "no_iniciado"]}
                       </span>
                     </td>

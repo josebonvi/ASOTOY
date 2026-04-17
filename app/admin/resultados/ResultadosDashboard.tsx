@@ -146,7 +146,7 @@ function CustomTooltip({
 }) {
   if (!active || !payload?.length) return null;
   return (
-    <div className="rounded-lg bg-card border border-border px-3 py-2 shadow-lg text-xs">
+    <div className="rounded-lg bg-card/90 backdrop-blur-lg border border-white/10 px-3 py-2 shadow-xl text-xs">
       <p className="font-semibold text-foreground mb-1">{label}</p>
       {payload.map((p, i) => (
         <p key={i} style={{ color: p.color }}>
@@ -183,7 +183,7 @@ function KPICard({
 }) {
   return (
     <motion.div variants={itemVariants}>
-      <Card className="h-full">
+      <Card className="h-full border-t-2 border-t-primary shadow-sm">
         <CardContent className="pt-1">
           <div className="flex items-center justify-between mb-3">
             <p className="text-xs font-medium text-muted-foreground">{label}</p>
@@ -267,7 +267,7 @@ export default function ResultadosDashboard({
 
       {/* Section 2: Nivel Toyota */}
       <motion.section variants={itemVariants}>
-        <Card>
+        <Card className="border-t-2 border-t-primary shadow-sm">
           <CardHeader>
             <CardTitle>Distribucion por Nivel Toyota</CardTitle>
             <CardDescription>
@@ -313,6 +313,9 @@ export default function ResultadosDashboard({
                     name="Personas"
                     fill="url(#barGradient)"
                     radius={[6, 6, 0, 0]}
+                    animationDuration={800}
+                    animationEasing="ease-out"
+                    activeBar={{ fill: "#FF3333", fillOpacity: 1 }}
                   />
                 </BarChart>
               </ResponsiveContainer>
@@ -323,7 +326,7 @@ export default function ResultadosDashboard({
 
       {/* Section 3: Zonas */}
       <motion.section variants={itemVariants}>
-        <Card>
+        <Card className="border-t-2 border-t-primary shadow-sm">
           <CardHeader>
             <CardTitle>Distribucion por Zona</CardTitle>
             <CardDescription>
@@ -342,6 +345,12 @@ export default function ResultadosDashboard({
                   </p>
                   <ResponsiveContainer width="100%" height={300}>
                     <PieChart>
+                      <text x="50%" y="46%" textAnchor="middle" dominantBaseline="middle" fill="white" fontSize={20} fontWeight="bold">
+                        {zonas.reduce((s, z) => s + z.personas, 0).toLocaleString("es-VE")}
+                      </text>
+                      <text x="50%" y="56%" textAnchor="middle" dominantBaseline="middle" fill="#94a3b8" fontSize={10}>
+                        personas
+                      </text>
                       <Pie
                         data={zonas}
                         dataKey="personas"
@@ -351,6 +360,8 @@ export default function ResultadosDashboard({
                         outerRadius={100}
                         innerRadius={50}
                         paddingAngle={3}
+                        animationDuration={800}
+                        animationEasing="ease-out"
                         label={({ name, percent }: { name?: string; percent?: number }) =>
                           `${name ?? ""} (${((percent ?? 0) * 100).toFixed(0)}%)`
                         }
@@ -394,6 +405,9 @@ export default function ResultadosDashboard({
                         name="Cargos"
                         fill={COLORS.blue}
                         radius={[0, 6, 6, 0]}
+                        animationDuration={800}
+                        animationEasing="ease-out"
+                        activeBar={{ fill: "#60A5FA", fillOpacity: 1 }}
                       />
                     </BarChart>
                   </ResponsiveContainer>
@@ -407,7 +421,7 @@ export default function ResultadosDashboard({
       {/* Section 4: Comparativa Salarial */}
       {hasSalaryData && (
         <motion.section variants={itemVariants}>
-          <Card>
+          <Card className="border-t-2 border-t-primary shadow-sm">
             <CardHeader>
               <CardTitle>Comparativa Salarial por Nivel Toyota</CardTitle>
               <CardDescription>
@@ -441,12 +455,18 @@ export default function ResultadosDashboard({
                     name="Salario Min (Prom.)"
                     fill={COLORS.blue}
                     radius={[6, 6, 0, 0]}
+                    animationDuration={800}
+                    animationEasing="ease-out"
+                    activeBar={{ fill: "#60A5FA", fillOpacity: 1 }}
                   />
                   <Bar
                     dataKey="salario_max_avg"
                     name="Salario Max (Prom.)"
                     fill={COLORS.green}
                     radius={[6, 6, 0, 0]}
+                    animationDuration={800}
+                    animationEasing="ease-out"
+                    activeBar={{ fill: "#4ADE80", fillOpacity: 1 }}
                   />
                 </BarChart>
               </ResponsiveContainer>
@@ -457,7 +477,7 @@ export default function ResultadosDashboard({
 
       {/* Section 5: Certificacion por Concesionario */}
       <motion.section variants={itemVariants}>
-        <Card>
+        <Card className="border-t-2 border-t-primary shadow-sm">
           <CardHeader>
             <CardTitle>Certificacion Toyota por Concesionario</CardTitle>
             <CardDescription>
@@ -499,6 +519,9 @@ export default function ResultadosDashboard({
                     fill={COLORS.amber}
                     radius={[0, 6, 6, 0]}
                     background={{ fill: "rgba(255,255,255,0.05)", radius: 6 }}
+                    animationDuration={800}
+                    animationEasing="ease-out"
+                    activeBar={{ fill: "#FBBF24", fillOpacity: 1 }}
                   />
                 </BarChart>
               </ResponsiveContainer>
@@ -509,7 +532,7 @@ export default function ResultadosDashboard({
 
       {/* Section 6: Necesidades */}
       <motion.section variants={itemVariants}>
-        <Card>
+        <Card className="border-t-2 border-t-primary shadow-sm">
           <CardHeader>
             <CardTitle>Necesidades de la Red</CardTitle>
             <CardDescription>
@@ -637,7 +660,7 @@ export default function ResultadosDashboard({
 
       {/* Section 7: Perfil de Talento */}
       <motion.section variants={itemVariants}>
-        <Card>
+        <Card className="border-t-2 border-t-primary shadow-sm">
           <CardHeader>
             <CardTitle>Perfil de Talento</CardTitle>
             <CardDescription>
@@ -674,6 +697,9 @@ export default function ResultadosDashboard({
                           name="Anios promedio"
                           fill={COLORS.purple}
                           radius={[6, 6, 0, 0]}
+                          animationDuration={800}
+                          animationEasing="ease-out"
+                          activeBar={{ fill: "#C084FC", fillOpacity: 1 }}
                         />
                       </BarChart>
                     </ResponsiveContainer>
@@ -691,6 +717,12 @@ export default function ResultadosDashboard({
                   {educacionDist.length > 0 ? (
                     <ResponsiveContainer width="100%" height={300}>
                       <PieChart>
+                        <text x="50%" y="46%" textAnchor="middle" dominantBaseline="middle" fill="white" fontSize={18} fontWeight="bold">
+                          {educacionDist.reduce((s, e) => s + e.cantidad, 0)}
+                        </text>
+                        <text x="50%" y="56%" textAnchor="middle" dominantBaseline="middle" fill="#94a3b8" fontSize={10}>
+                          perfiles
+                        </text>
                         <Pie
                           data={educacionDist}
                           dataKey="cantidad"
@@ -700,6 +732,8 @@ export default function ResultadosDashboard({
                           outerRadius={100}
                           innerRadius={45}
                           paddingAngle={3}
+                          animationDuration={800}
+                          animationEasing="ease-out"
                           label={({ name, percent }: { name?: string; percent?: number }) =>
                             `${name ?? ""} (${((percent ?? 0) * 100).toFixed(0)}%)`
                           }

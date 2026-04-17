@@ -409,11 +409,11 @@ export default function ExportarPage() {
           return (
             <div
               key={exp.id}
-              className="rounded-xl bg-card border border-border p-5 flex flex-col gap-4 hover:border-primary/40 transition-colors"
+              className="rounded-xl bg-card border border-border p-5 flex flex-col gap-4 hover:border-primary/40 hover:scale-[1.02] hover:shadow-lg transition-all duration-200"
             >
               <div className="flex items-start gap-3">
-                <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-primary/10 text-primary shrink-0">
-                  <Icon size={18} />
+                <div className="flex items-center justify-center w-12 h-12 rounded-xl bg-primary/10 text-primary shrink-0">
+                  <Icon size={24} />
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 flex-wrap">
@@ -458,9 +458,9 @@ export default function ExportarPage() {
                 className="w-full"
               >
                 {loading === exp.id ? (
-                  <Loader2 size={14} className="mr-2 animate-spin" />
+                  <Loader2 size={18} className="mr-2 animate-spin" />
                 ) : (
-                  <Download size={14} className="mr-2" />
+                  <Download size={16} className="mr-2" />
                 )}
                 {loading === exp.id ? "Generando..." : "Descargar CSV"}
               </Button>
